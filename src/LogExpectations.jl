@@ -1,4 +1,4 @@
-module LogpdfExpectation
+module LogExpectations
 
 import Distributions: mean
 

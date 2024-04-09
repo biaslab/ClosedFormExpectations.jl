@@ -1,4 +1,4 @@
-name = "LogpdfExpectation"
+name = "LogExpectations"
 uuid = "70ff922c-62d4-418d-abfc-e284e489b734"
 authors = ["Mykola Lukashchuk <nikola.lukashuk@gmail.com> and contributors"]
 version = "1.0.0-DEV"

@@ -1,6 +1,6 @@
 @testitem "meanlog(::Exponential, ::LogNormal)" begin
     using Distributions
-    using LogpdfExpectation
+    using LogExpectations
     using StableRNGs
 
     for _ in 1:10
