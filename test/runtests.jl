@@ -1,6 +1,6 @@
-using LogpdfExpectation
+using LogExpectations
 using Test
 
-@testset "LogpdfExpectation.jl" begin
+@testset "LogExpectations.jl" begin
     # Write your tests here.
 end
