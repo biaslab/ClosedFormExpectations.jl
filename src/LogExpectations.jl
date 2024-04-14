@@ -17,6 +17,15 @@ Compute the E_q[log f(x)] where q is a distribution and f is a function.
 """
 function meanlog(::ClosedFormExpectation, ::Nothing, ::Nothing) end
 
+
+# """
+#     meanlog(::ClosedFormExpectation, q::ContinuousDistribution, p::ContinuousDistribution)
+
+# Compute E_q[log p(x)] where q and p are both continous distributions from Distributions julia package.
+# """
+# function meanlog(::ClosedFormExpectation, ::ContinuousDistribution, ::ContinuousDistribution) end
+
+
 abstract type LogExpression end
 
 """
@@ -34,5 +43,6 @@ function (p::ExpLogSquare)(x)
 end
 
 include("Exponential/Exponential.jl")
+include("Normal/UnivariateNormal.jl")
 
 end
