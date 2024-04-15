@@ -1,5 +1,6 @@
 module LogExpectations
 
+import Base: log
 import Distributions: mean
 
 export ClosedFormExpectation, meanlog
@@ -17,22 +18,27 @@ Compute the E_q[log f(x)] where q is a distribution and f is a function.
 """
 function meanlog(::ClosedFormExpectation, ::Nothing, ::Nothing) end
 
+struct ClosedWilliamsProduct end 
+
+"""
+    meanlog(::ClosedWilliamsProduct, q, f)
+
+Suppose q is a distribution with density parameterized by θ and f is a function.
+
+Compute the E_q[f(x) ∇_θ log q(x; θ)] where q is a distribution and f is a function.
+"""
+function meanlog(::ClosedWilliamsProduct, ::Nothing, ::Nothing) end
+
 abstract type LogExpression end
 
-"""
-    ExpLogSquare(μ, σ)
-
-ExpLogSquare is a type that represents the exp(-(log(x) - μ)^2/(2σ^2)) function.
-"""
-struct ExpLogSquare <: LogExpression
-    μ
-    σ
+function (f::ComposedFunction{typeof(log), T})(x) where {T <: LogExpression}
+    return log(f.inner, x)
 end
 
-function (p::ExpLogSquare)(x)
-    return exp(-(log(x) - p.μ)^2/(2*p.σ^2))
-end
+# expressions
+include("expressions/ExpLogSquare.jl")
 
+# rules for computing expectation of log
 include("Exponential/Exponential.jl")
 
 end
