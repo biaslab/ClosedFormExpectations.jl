@@ -41,5 +41,6 @@ include("expressions/ExpLogSquare.jl")
 
 # rules for computing expectation of log
 include("Exponential/Exponential.jl")
+include("Normal/UnivariateNormal.jl")
 
 end
