@@ -26,4 +26,3 @@ meanlog: A function to compute the expectation E_q[log p(x)], where q is a distr
 using LogExpectations
 using Distributions
 meanlog(ClosedFormExpectation(), q, p)
-```

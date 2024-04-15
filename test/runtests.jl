@@ -1,6 +1,10 @@
-using LogExpectations
-using Test
+using CpuId, ReTestItems, LogExpectations
 
-@testset "LogExpectations.jl" begin
-    # Write your tests here.
-end
+nthreads = max(cputhreads(), 1)
+ncores = max(cpucores(), 1)
+
+runtests(LogExpectations,
+    nworkers = ncores,
+    nworker_threads = Int(nthreads / ncores),
+    memory_threshold = 1.0
+)
