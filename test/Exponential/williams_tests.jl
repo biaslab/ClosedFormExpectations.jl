@@ -72,3 +72,24 @@ end
         @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
     end
 end
+
+@testitem "mean(::ClosedWilliamsProduct, Exponential, Exponential}" begin
+    using Distributions
+    using ClosedFormExpectations
+    using StableRNGs
+    using Base.MathConstants: eulergamma
+
+    include("../test_utils.jl")
+    rng = StableRNG(123)
+    score(q::Exponential, x) = -1/mean(q) + x/(mean(q)^2)
+
+    for _ in 1:10
+        λ1 = rand(rng)*10
+        λ2 = rand(rng)*10
+        N = 10^6
+        samples = rand(rng, Exponential(λ1), N)
+        fn(x) = logpdf(Exponential(λ2), x)
+        williams_product = map(x -> score(Exponential(λ1), x)*fn(x), samples)
+        @test sigma_rule(mean(ClosedWilliamsProduct(), Exponential(λ1), Exponential(λ2)), mean(williams_product), std(williams_product), N)
+    end
+end
