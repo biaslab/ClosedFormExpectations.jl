@@ -1,4 +1,4 @@
-module LogExpectations
+module ClosedFormExpectations
 
 import Base: log
 import Distributions: mean
@@ -15,9 +15,9 @@ struct ClosedFormExpectation end
 """
     meanlog(::ClosedFormExpectation, q, f)
 
-Compute the E_q[log f(x)] where q is a distribution and f is a function.
+Compute the E_q[f(x)] where q is a distribution and f is a function.
 """
-function meanlog(::ClosedFormExpectation, ::Nothing, ::Nothing) end
+function mean(::ClosedFormExpectation, ::Nothing, ::Nothing) end
 
 struct ClosedWilliamsProduct end 
 
@@ -26,9 +26,9 @@ struct ClosedWilliamsProduct end
 
 Suppose q is a distribution with density parameterized by θ and f is a function.
 
-Compute the E_q[log f(x) ∇_θ log q(x; θ)] where q is a distribution and f is a function.
+Compute the E_q[f(x) ∇_θ log q(x; θ)] where q is a distribution and f is a function.
 """
-function meanlog(::ClosedWilliamsProduct, ::Nothing, ::Nothing) end
+function mean(::ClosedWilliamsProduct, ::Nothing, ::Nothing) end
 
 abstract type LogExpression end
 

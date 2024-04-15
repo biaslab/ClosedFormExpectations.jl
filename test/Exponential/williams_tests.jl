@@ -1,6 +1,6 @@
 @testitem "mean(::ClosedWilliamsProduct, q::Exponential, p::typeof(identity))" begin
     using Distributions
-    using LogExpectations
+    using ClosedFormExpectations
     using StableRNGs
     using Base.MathConstants: eulergamma
 
@@ -23,7 +23,7 @@ end
 
 @testitem "meanlog(::ClosedWilliamsProduct, q::Exponential, p::ExpLogSquare)" begin
     using Distributions
-    using LogExpectations
+    using ClosedFormExpectations
     using StableRNGs
     using Base.MathConstants: eulergamma
 
@@ -49,7 +49,7 @@ end
 
 @testitem "meanlog(::ClosedWilliamsProduct, q::Exponential, p::LogNormal)" begin
     using Distributions
-    using LogExpectations
+    using ClosedFormExpectations
     using StableRNGs
     using Base.MathConstants: eulergamma
 

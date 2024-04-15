@@ -1,6 +1,6 @@
-@testitem "meanlog(::Exponential, ::LogNormal)" begin
+@testitem "mean(::Exponential, ::ComposedFunction{typeof(log), LogNormal})" begin
     using Distributions
-    using LogExpectations
+    using ClosedFormExpectations
     using StableRNGs
     include("../test_utils.jl")
     rng = StableRNG(123)
@@ -11,16 +11,14 @@
         N = 10^6
         samples = rand(rng, Exponential(λ), N)
         logpdf_samples = logpdf(LogNormal(μ, σ), samples)        
-        expectation = meanlog(ClosedFormExpectation(), Exponential(λ), LogNormal(μ, σ))
-        # @show expectation
-        # @show mean(logpdf_samples)
+        expectation = mean(ClosedFormExpectation(), Exponential(λ), log ∘ LogNormal(μ, σ))
         @test sigma_rule(expectation, mean(logpdf_samples), std(logpdf_samples), 10^6)
     end
 end
 
-@testitem "meanlog(::Exponential, ::identity)" begin
+@testitem "mean(::Exponential, ::typeof{log})" begin
     using Distributions
-    using LogExpectations
+    using ClosedFormExpectations
     using StableRNGs
     include("../test_utils.jl")
     rng = StableRNG(123)
@@ -29,13 +27,13 @@ end
         N = 10^6
         samples = rand(rng, Exponential(λ), 10^6)
         log_samples = log.(samples)
-        @test sigma_rule(meanlog(ClosedFormExpectation(), Exponential(λ), identity), mean(log_samples), std(log_samples), N)
+        @test sigma_rule(mean(ClosedFormExpectation(), Exponential(λ), log), mean(log_samples), std(log_samples), N)
     end
 end
 
-@testitem "meanlog(::Exponential, ::ExpLogSquare)" begin
+@testitem "mean(::Exponential, ::ExpLogSquare)" begin
     using Distributions
-    using LogExpectations
+    using ClosedFormExpectations
     using StableRNGs
     using Base.MathConstants: eulergamma
 
@@ -48,6 +46,6 @@ end
         N = 10^5
         samples = rand(rng, Exponential(λ), N)
         log_samples = log.(ExpLogSquare(μ, σ).(samples))
-        @test sigma_rule(meanlog(ClosedFormExpectation(), Exponential(λ), ExpLogSquare(μ, σ)), mean(log_samples), std(log_samples), N)
+        @test sigma_rule(mean(ClosedFormExpectation(), Exponential(λ), log ∘ ExpLogSquare(μ, σ)), mean(log_samples), std(log_samples), N)
     end
 end
