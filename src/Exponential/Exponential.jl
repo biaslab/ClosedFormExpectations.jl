@@ -8,8 +8,7 @@ function meanlog(::ClosedFormExpectation, q::Exponential, p::LogNormal)
 end 
 
 function meanlog(::ClosedFormExpectation, q::Exponential, p::typeof(identity))
-    λ = 1/mean(q)
-    return -eulergamma - log(λ)
+    return -eulergamma + log(mean(q))
 end
 
 function meanlog(::ClosedFormExpectation, q::Exponential, p::ExpLogSquare)
@@ -17,4 +16,8 @@ function meanlog(::ClosedFormExpectation, q::Exponential, p::ExpLogSquare)
     σ = p.σ
     λ = mean(q)
     return 1/(2*σ^2)*(-(μ+eulergamma)^2 - π^2/6 - log(λ)*(-2*(eulergamma+μ) + log(λ)))
+end
+
+function mean(::ClosedWilliamsProduct, q::Exponential, p::typeof(identity))
+    return 1/mean(q)
 end

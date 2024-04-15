@@ -5,6 +5,7 @@ import Distributions: mean
 
 export ClosedFormExpectation, meanlog
 export ExpLogSquare
+export ClosedWilliamsProduct
 
 """
     ClosedFormExpectation
@@ -25,7 +26,7 @@ struct ClosedWilliamsProduct end
 
 Suppose q is a distribution with density parameterized by θ and f is a function.
 
-Compute the E_q[f(x) ∇_θ log q(x; θ)] where q is a distribution and f is a function.
+Compute the E_q[log f(x) ∇_θ log q(x; θ)] where q is a distribution and f is a function.
 """
 function meanlog(::ClosedWilliamsProduct, ::Nothing, ::Nothing) end
 
