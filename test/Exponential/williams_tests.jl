@@ -47,7 +47,7 @@ end
     end
 end
 
-@testitem "meanlog(::ClosedWilliamsProduct, q::Exponential, p::LogNormal)" begin
+@testitem "mean(::ClosedWilliamsProduct, q::Exponential, p::LogNormal)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -64,12 +64,11 @@ end
         μ = rand(rng)*10
         σ = rand(rng)*10
         λ = rand(rng)*10
-        N = 10^7
+        N = 10^6
         samples = rand(rng, Exponential(λ), 10^6)
         fn(x)  = logpdf(LogNormal(μ, σ), x)
         williams_product = map(x -> score(Exponential(λ), x)*fn(x), samples)
-        expectation = mean(ClosedWilliamsProduct(), Exponential(λ), ExpLogSquare(μ, σ))
-        @show mean(williams_product)
-        @show expectation
+        expectation = mean(ClosedWilliamsProduct(), Exponential(λ), LogNormal(μ, σ))
+        @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
     end
 end

@@ -32,7 +32,7 @@ function mean(::ClosedWilliamsProduct, q::Exponential, p::ExpLogSquare)
     return 1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ)
 end
 
-function mean(::ClosedFormExpectation, q::Exponential, p::LogNormal)
+function mean(::ClosedWilliamsProduct, q::Exponential, p::LogNormal)
     μ, σ = p.μ, p.σ
     λ = mean(q)
     return 1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ) - 1/λ
