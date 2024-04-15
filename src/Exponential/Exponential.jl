@@ -11,6 +11,10 @@ function mean(::ClosedFormExpectation, q::Exponential, p::typeof(log))
     return -eulergamma + log(mean(q))
 end
 
+function mean(::ClosedFormExpectation, q::Exponential, p::ComposedFunction{typeof(log), typeof(identity)})
+    return -eulergamma + log(mean(q))
+end
+
 function mean(::ClosedFormExpectation, q::Exponential, p::ComposedFunction{typeof(log), ExpLogSquare{T}}) where {T}
     μ, σ = p.inner.μ, p.inner.σ
     λ = mean(q)

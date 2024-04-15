@@ -3,7 +3,7 @@
 
 ExpLogSquare is a type that represents the exp(-(log(x) - μ)^2/(2σ^2)) function.
 """
-struct ExpLogSquare{T} <: LogExpression
+struct ExpLogSquare{T} <: Expression
     μ::T
     σ::T
 end
