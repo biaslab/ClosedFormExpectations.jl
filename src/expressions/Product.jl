@@ -1,7 +1,7 @@
 struct Product <: LogExpression
-    multipliers::Tuple{LogExpression}
+    multipliers::Tuple{<:LogExpression}
 end
 
-function meanlog(::ClosedFormExpectation, q, p::Product)
-    return sum(meanlog(ClosedFormExpectation(), q, p_i) for p_i in p.multipliers)
+function mean(::ClosedFormExpectation, q, p::ComposedFunction{typeof(log), Product})
+    return sum(mean(ClosedFormExpectation(), q, log ∘ p_i) for p_i in p.multipliers)
 end

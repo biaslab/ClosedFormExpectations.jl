@@ -31,7 +31,7 @@ end
     end
 end
 
-@testitem "mean(::Exponential, ::ExpLogSquare)" begin
+@testitem "mean(::Exponential, ::ComposedFunction{typeof(log), ExpLogSquare}" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
