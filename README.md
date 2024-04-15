@@ -18,8 +18,6 @@ The package exports the following:
 
 ClosedFormExpectation: A struct representing the closed-form expectation.
 
-meanlog: A function to compute the expectation E_q[log p(x)], where q is a distribution and p is a function.
-
 ## Usage
 
 ```julia
