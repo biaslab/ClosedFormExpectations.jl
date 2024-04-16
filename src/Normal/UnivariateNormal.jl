@@ -1,13 +1,13 @@
 import Distributions: Laplace, Normal, Rayleigh, params, cdf
 
 
-function mean(::ClosedFormExpectation, q::Normal, p::ComposedFunction{typeof(log), Normal{T}}) where {T}
+function mean(::ClosedFormExpectation, p::ComposedFunction{typeof(log), Normal{T}}, q::Normal) where {T}
     μ_q, σ_q = q.μ, q.σ
     μ_p, σ_p = p.inner.μ, p.inner.σ
     return - 1/2 * log(2 * π * σ_p^2) - (σ_q^2 + (μ_p- μ_q)^2) / (2 * σ_p^2)
 end 
 
-function mean(::ClosedFormExpectation, q::Normal, p::ComposedFunction{typeof(log), Laplace{T}}) where {T}
+function mean(::ClosedFormExpectation, p::ComposedFunction{typeof(log), Laplace{T}}, q::Normal) where {T}
     μ_q, σ_q = q.μ, q.σ
     (μ_p, θ_p) = params(p.inner)
     normal = Normal(0,σ_q)

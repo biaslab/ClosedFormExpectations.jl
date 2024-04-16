@@ -11,7 +11,7 @@
         N = 10^6
         samples = rand(rng, Exponential(λ), N)
         logpdf_samples = logpdf(LogNormal(μ, σ), samples)        
-        expectation = mean(ClosedFormExpectation(), Exponential(λ), log ∘ LogNormal(μ, σ))
+        expectation = mean(ClosedFormExpectation(), log ∘ LogNormal(μ, σ), Exponential(λ))
         @test sigma_rule(expectation, mean(logpdf_samples), std(logpdf_samples), 10^6)
     end
 end
@@ -27,7 +27,7 @@ end
         N = 10^6
         samples = rand(rng, Exponential(λ), 10^6)
         log_samples = log.(samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), Exponential(λ), log), mean(log_samples), std(log_samples), N)
+        @test sigma_rule(mean(ClosedFormExpectation(), log, Exponential(λ)), mean(log_samples), std(log_samples), N)
     end
 end
 
@@ -46,7 +46,7 @@ end
         N = 10^5
         samples = rand(rng, Exponential(λ), N)
         log_samples = log.(ExpLogSquare(μ, σ).(samples))
-        @test sigma_rule(mean(ClosedFormExpectation(), Exponential(λ), log ∘ ExpLogSquare(μ, σ)), mean(log_samples), std(log_samples), N)
+        @test sigma_rule(mean(ClosedFormExpectation(), log ∘ ExpLogSquare(μ, σ), Exponential(λ)), mean(log_samples), std(log_samples), N)
     end
 end
 
@@ -63,8 +63,8 @@ end
         σ = rand(rng)*10
         λ = rand(rng)*10
         product = ClosedFormExpectations.Product((ExpLogSquare(μ, σ), identity))
-        sum_mean = mean(ClosedFormExpectation(), Exponential(λ), log ∘ ExpLogSquare(μ, σ)) + mean(ClosedFormExpectation(), Exponential(λ), log)
-        @test mean(ClosedFormExpectation(), Exponential(λ), log ∘ product) ≈ sum_mean
+        sum_mean = mean(ClosedFormExpectation(), log ∘ ExpLogSquare(μ, σ), Exponential(λ)) + mean(ClosedFormExpectation(), log, Exponential(λ))
+        @test mean(ClosedFormExpectation(), log ∘ product, Exponential(λ)) ≈ sum_mean
     end
 end
 
@@ -82,6 +82,6 @@ end
         N = 10^6
         samples = rand(rng, Exponential(λ1), N)
         log_samples = logpdf(Exponential(λ2), samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), Exponential(λ1), log ∘ Exponential(λ2)), mean(log_samples), std(log_samples), N)
+        @test sigma_rule(mean(ClosedFormExpectation(), log ∘ Exponential(λ2), Exponential(λ1)), mean(log_samples), std(log_samples), N)
     end
 end

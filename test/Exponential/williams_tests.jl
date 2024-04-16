@@ -16,7 +16,7 @@
         N = 10^6
         samples = rand(rng, Exponential(λ), 10^6)
         williams_product = map(x -> score(Exponential(λ), x)*log(x), samples)
-        expectation = mean(ClosedWilliamsProduct(), Exponential(λ), identity)
+        expectation = mean(ClosedWilliamsProduct(), identity, Exponential(λ))
         @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
     end
 end
@@ -42,7 +42,7 @@ end
         samples = rand(rng, Exponential(λ), 10^6)
         fn(x)  = (log ∘ ExpLogSquare(μ, σ))(x)
         williams_product = map(x -> score(Exponential(λ), x)*fn(x), samples)
-        expectation = mean(ClosedWilliamsProduct(), Exponential(λ), ExpLogSquare(μ, σ))
+        expectation = mean(ClosedWilliamsProduct(), ExpLogSquare(μ, σ), Exponential(λ))
         @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
     end
 end
@@ -68,7 +68,7 @@ end
         samples = rand(rng, Exponential(λ), 10^6)
         fn(x)  = logpdf(LogNormal(μ, σ), x)
         williams_product = map(x -> score(Exponential(λ), x)*fn(x), samples)
-        expectation = mean(ClosedWilliamsProduct(), Exponential(λ), LogNormal(μ, σ))
+        expectation = mean(ClosedWilliamsProduct(), LogNormal(μ, σ), Exponential(λ))
         @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
     end
 end
@@ -90,6 +90,6 @@ end
         samples = rand(rng, Exponential(λ1), N)
         fn(x) = logpdf(Exponential(λ2), x)
         williams_product = map(x -> score(Exponential(λ1), x)*fn(x), samples)
-        @test sigma_rule(mean(ClosedWilliamsProduct(), Exponential(λ1), Exponential(λ2)), mean(williams_product), std(williams_product), N)
+        @test sigma_rule(mean(ClosedWilliamsProduct(), Exponential(λ2), Exponential(λ1)), mean(williams_product), std(williams_product), N)
     end
 end
