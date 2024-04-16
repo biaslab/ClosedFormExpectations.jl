@@ -1,4 +1,4 @@
-@testitem "meanlog(::Normal, ::Normal)" begin
+@testitem "mean(::Normal, ::Normal)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -13,8 +13,4 @@
         log_samples = map(x -> logpdf(Normal(μ_2, σ_2),x),samples)
         @test sigma_rule(mean(ClosedFormExpectation(), Normal(μ_1, σ_1), log ∘ Normal(μ_2, σ_2)), mean(log_samples), std(log_samples), N)
     end
-end
-
-@testitem "meanlog(::Normal, ::Laplace)" begin
-    
 end

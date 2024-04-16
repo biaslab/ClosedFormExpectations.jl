@@ -3,7 +3,7 @@ module ClosedFormExpectations
 import Base: log
 import Distributions: mean
 
-export ClosedFormExpectation, meanlog
+export ClosedFormExpectation
 export ExpLogSquare
 export ClosedWilliamsProduct
 
@@ -13,7 +13,7 @@ export ClosedWilliamsProduct
 struct ClosedFormExpectation end
 
 """
-    meanlog(::ClosedFormExpectation, q, f)
+    mean(::ClosedFormExpectation, q, f)
 
 Compute the E_q[f(x)] where q is a distribution and f is a function.
 """
@@ -22,7 +22,7 @@ function mean(::ClosedFormExpectation, ::Nothing, ::Nothing) end
 struct ClosedWilliamsProduct end 
 
 """
-    meanlog(::ClosedWilliamsProduct, q, f)
+    mean(::ClosedWilliamsProduct, q, f)
 
 Suppose q is a distribution with density parameterized by θ and f is a function.
 
