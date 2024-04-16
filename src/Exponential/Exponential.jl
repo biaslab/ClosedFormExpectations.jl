@@ -2,14 +2,14 @@ import Distributions: Exponential, LogNormal, scale, kldivergence, entropy
 import Base.MathConstants: eulergamma
 import LogExpFunctions: xlogx
 
-function mean(::ClosedFormExpectation, p::ComposedFunction{typeof(log), Exponential{T}}, q::Exponential) where {T}
+function mean(::ClosedFormExpectation, p::Logpdf{Exponential{T}}, q::Exponential) where {T}
     λ1 = mean(q)
-    λ2 = mean(p.inner)
+    λ2 = mean(p.dist)
     return -(λ1 + xlogx(λ2))/λ2
 end
 
-function mean(::ClosedFormExpectation, p::ComposedFunction{typeof(log), LogNormal{T}}, q::Exponential) where {T}
-    μ, σ = p.inner.μ, p.inner.σ
+function mean(::ClosedFormExpectation, p::Logpdf{LogNormal{T}}, q::Exponential) where {T}
+    μ, σ = p.dist.μ, p.dist.σ
     λ = mean(q)
     return 1/(2*σ^2)*(-(μ+eulergamma)^2 - π^2/6 - log(λ)*(-2*(eulergamma+μ) + log(λ))) + eulergamma - log(λ) - 0.5*log(2π) - log(σ)
 end 

@@ -23,5 +23,5 @@ The package exports the following:
 ```julia
 using ClosedFormExpectations
 using Distributions
-mean(ClosedFormExpectation(), Exponetial(10), log)
+mean(ClosedFormExpectation(), log, Exponetial(10))
 ```

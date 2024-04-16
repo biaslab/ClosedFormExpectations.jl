@@ -10,6 +10,4 @@ function (f::Logpdf{D})(args...) where {D <: Distribution}
     return logpdf(f.dist, args...;)
 end
 
-# function convert(::Type{Logpdf}, fixed_call::Fix1{typeof{logpdf}, D}) where {D <: Distribution}
-#     return Logpdf(D)
-# end
+mean(::ClosedFormExpectation, f::Base.Fix1{typeof(logpdf), D}, q) where {D} = mean(ClosedFormExpectation(), Logpdf(f.x), q)

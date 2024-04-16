@@ -36,6 +36,9 @@ function (f::ComposedFunction{typeof(log), T})(x) where {T <: Expression}
     return log(f.inner, x)
 end
 
+# Logpdf structure
+include("logpdf.jl")
+
 # expressions
 include("expressions/ExpLogSquare.jl")
 include("expressions/Product.jl")
@@ -44,7 +47,6 @@ include("expressions/Product.jl")
 include("Exponential/Exponential.jl")
 include("Normal/UnivariateNormal.jl")
 
-# Logpdf structure
-include("logpdf.jl")
+
 
 end

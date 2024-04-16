@@ -11,7 +11,7 @@
         N = 10^6
         samples = rand(rng, Exponential(λ), N)
         logpdf_samples = logpdf(LogNormal(μ, σ), samples)        
-        expectation = mean(ClosedFormExpectation(), log ∘ LogNormal(μ, σ), Exponential(λ))
+        expectation = mean(ClosedFormExpectation(), Logpdf(LogNormal(μ, σ)), Exponential(λ))
         @test sigma_rule(expectation, mean(logpdf_samples), std(logpdf_samples), 10^6)
     end
 end
@@ -68,7 +68,7 @@ end
     end
 end
 
-@testitem "mean(::Exponential, ::ComposedFunction{typeof(log), Exponential}" begin
+@testitem "mean(::ClosedFormExpectation, ::Logpdf{Exponential}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -82,6 +82,6 @@ end
         N = 10^6
         samples = rand(rng, Exponential(λ1), N)
         log_samples = logpdf(Exponential(λ2), samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), log ∘ Exponential(λ2), Exponential(λ1)), mean(log_samples), std(log_samples), N)
+        @test sigma_rule(mean(ClosedFormExpectation(), Logpdf(Exponential(λ2)), Exponential(λ1)), mean(log_samples), std(log_samples), N)
     end
 end
