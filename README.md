@@ -18,6 +18,8 @@ The package exports the following:
 
 `ClosedWilliamsProduct`: A struct representing the closed-form expectation of the product of score function and a target function (the gradient of the `ClosedFormExpectation`)
 
+`Logpdf`: A struct to represent the logpdf function of a distribution
+
 ## Usage
 
 ```julia
