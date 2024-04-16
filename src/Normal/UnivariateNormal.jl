@@ -1,4 +1,5 @@
-import Distributions: Laplace, Normal
+import Distributions: Laplace, Normal, Rayleigh, params, cdf
+
 
 function mean(::ClosedFormExpectation, q::Normal, p::ComposedFunction{typeof(log), Normal{T}}) where {T}
     μ_q, σ_q = q.μ, q.σ
@@ -7,7 +8,9 @@ function mean(::ClosedFormExpectation, q::Normal, p::ComposedFunction{typeof(log
 end 
 
 function mean(::ClosedFormExpectation, q::Normal, p::ComposedFunction{typeof(log), Laplace{T}}) where {T}
-    μ_q, σ_q = q.μ, q.σ, 
-    μ_p, θ_p = p.μ, p.Θ
-    return 0
+    μ_q, σ_q = q.μ, q.σ
+    (μ_p, θ_p) = params(p.inner)
+    normal = Normal(0,σ_q)
+    diff = μ_p - μ_q
+    return - log(2*θ_p) - θ_p^(-1) * ( 2 * (σ_q/sqrt(2*π)) * exp(-diff^2/(2*σ_q^2))  +  diff * (2 * cdf(normal,diff) - 1) )
 end 
