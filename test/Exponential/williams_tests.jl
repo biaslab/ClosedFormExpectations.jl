@@ -21,7 +21,7 @@
     end
 end
 
-@testitem "mean(::ClosedWilliamsProduct, p::ExpLogSquare, q::Exponential)" begin
+@testitem "mean(::ClosedWilliamsProduct, p::log ∘ ExpLogSquare, q::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
