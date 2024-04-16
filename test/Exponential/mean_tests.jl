@@ -1,4 +1,4 @@
-@testitem "mean(::Exponential, ::ComposedFunction{typeof(log), LogNormal})" begin
+@testitem "mean(::ClosedFormExpectation, ::Logpdf{LogNormal}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -16,7 +16,7 @@
     end
 end
 
-@testitem "mean(::Exponential, ::typeof{log})" begin
+@testitem "mean(::ClosedFormExpectation, ::typeof{log}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -31,7 +31,7 @@ end
     end
 end
 
-@testitem "mean(::Exponential, ::ComposedFunction{typeof(log), ExpLogSquare})" begin
+@testitem "mean(::ClosedFormExpectations, ::ComposedFunction{typeof(log), ExpLogSquare}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -50,7 +50,7 @@ end
     end
 end
 
-@testitem "mean(::Exponential, ::ComposedFunction{typeof(log), ExpLogSquare x identity}" begin
+@testitem "mean(::ClosedFormExpectation, ::ComposedFunction{typeof(log), ExpLogSquare x identity}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
