@@ -2,6 +2,11 @@ export Logpdf
 
 import Distributions: Distribution, logpdf
 
+"""
+    Logpdf
+
+A structure to represent the logpdf function of a distribution.
+"""
 struct Logpdf{D}
     dist::D
 end
