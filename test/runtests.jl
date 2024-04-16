@@ -6,7 +6,6 @@ ncores = max(cpucores(), 1)
 Aqua.test_all(
     ClosedFormExpectations,
     ambiguities = false,
-    piracies = false,
 )
 
 runtests(ClosedFormExpectations,
