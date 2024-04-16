@@ -15,6 +15,7 @@ pkg> add ClosedFormExpectations
 The package exports the following:
 
 `ClosedFormExpectation`: A struct representing the closed-form expectation
+
 `ClosedWilliamsProduct`: A struct representing the closed-form expectation of the product of score function and a target function (the gradient of the `ClosedFormExpectation`)
 
 ## Usage
