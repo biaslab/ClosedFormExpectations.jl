@@ -28,24 +28,24 @@ function mean(::ClosedFormExpectation, p::ComposedFunction{typeof(log), ExpLogSq
     return 1/(2*σ^2)*(-(μ+eulergamma)^2 - π^2/6 - log(λ)*(-2*(eulergamma+μ) + log(λ)))
 end
 
-function mean(::ClosedWilliamsProduct, p::typeof(identity), q::Exponential)
+function mean(::ClosedWilliamsProduct, p::typeof(log), q::Exponential)
     return 1/mean(q)
 end
 
-function mean(::ClosedWilliamsProduct, p::ExpLogSquare, q::Exponential)
-    μ = p.μ
-    σ = p.σ
+function mean(::ClosedWilliamsProduct, p::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Exponential) where {T}
+    μ = p.inner.μ
+    σ = p.inner.σ
     λ = mean(q)
     return 1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ)
 end
 
-function mean(::ClosedWilliamsProduct, p::LogNormal, q::Exponential)
-    μ, σ = p.μ, p.σ
+function mean(::ClosedWilliamsProduct, p::Logpdf{LogNormal{T}}, q::Exponential) where {T}
+    μ, σ = p.dist.μ, p.dist.σ
     λ = mean(q)
     return 1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ) - 1/λ
 end 
 
-function mean(::ClosedWilliamsProduct, p::Exponential, ::Exponential)
-    λ2 = mean(p)
+function mean(::ClosedWilliamsProduct, f::Logpdf{Exponential{T}}, ::Exponential) where {T}
+    λ2 = mean(f.dist)
     return -1/λ2
 end
