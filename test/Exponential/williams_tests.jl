@@ -13,11 +13,7 @@
 
     for _ in 1:10
         λ = rand(rng)*10
-        N = 10^6
-        samples = rand(rng, Exponential(λ), 10^6)
-        williams_product = map(x -> score(Exponential(λ), x)*log(x), samples)
-        expectation = mean(ClosedWilliamsProduct(), log, Exponential(λ))
-        @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
+        central_limit_theorem_test(ClosedWilliamsProduct(), log, Exponential(λ), score)
     end
 end
 
@@ -38,12 +34,7 @@ end
         μ = rand(rng)*10
         σ = rand(rng)*10
         λ = rand(rng)*10
-        N = 10^6
-        samples = rand(rng, Exponential(λ), 10^6)
-        fn(x)  = (log ∘ ExpLogSquare(μ, σ))(x)
-        williams_product = map(x -> score(Exponential(λ), x)*fn(x), samples)
-        expectation = mean(ClosedWilliamsProduct(), log ∘ ExpLogSquare(μ, σ), Exponential(λ))
-        @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
+        central_limit_theorem_test(ClosedWilliamsProduct(), log ∘ ExpLogSquare(μ, σ), Exponential(λ), score)
     end
 end
 
@@ -64,12 +55,7 @@ end
         μ = rand(rng)*10
         σ = rand(rng)*10
         λ = rand(rng)*10
-        N = 10^6
-        samples = rand(rng, Exponential(λ), 10^6)
-        fn(x)  = logpdf(LogNormal(μ, σ), x)
-        williams_product = map(x -> score(Exponential(λ), x)*fn(x), samples)
-        expectation = mean(ClosedWilliamsProduct(), Logpdf(LogNormal(μ, σ)), Exponential(λ))
-        @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
+        central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(LogNormal(μ, σ)), Exponential(λ), score)
     end
 end
 
@@ -86,11 +72,6 @@ end
     for _ in 1:10
         λ1 = rand(rng)*10
         λ2 = rand(rng)*10
-        N = 10^6
-        samples = rand(rng, Exponential(λ1), N)
-        fn(x) = logpdf(Exponential(λ2), x)
-        williams_product = map(x -> score(Exponential(λ1), x)*fn(x), samples)
-        expectation = mean(ClosedWilliamsProduct(), Logpdf(Exponential(λ2)), Exponential(λ1))
-        @test sigma_rule(expectation, mean(williams_product), std(williams_product), N)
+        central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(Exponential(λ2)), Exponential(λ1), score)
     end
 end

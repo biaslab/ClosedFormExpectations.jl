@@ -6,13 +6,7 @@
     rng = StableRNG(123)
     for _ in 1:10
         α, θ = rand(rng)*10, rand(rng)*10
-        N = 10^6
-        
-        q = Gamma(α, θ)
-
-        samples = rand(rng, q, 10^6)
-        log_samples = log.(samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), log, q), mean(log_samples), std(log_samples), N)
+        central_limit_theorem_test(ClosedFormExpectation(), log, Gamma(α, θ))
     end
 end
 
@@ -26,13 +20,7 @@ end
     rng = StableRNG(123)
     for _ in 1:10
         α, θ = rand(rng)*10, rand(rng)*10
-        N = 10^6
-        
-        q = Gamma(α, θ)
-
-        samples = rand(rng, q, 10^6)
-        xlog_samples = xlogx.(samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), xlogx, q), mean(xlog_samples), std(xlog_samples), N)
+        central_limit_theorem_test(ClosedFormExpectation(), xlogx, Gamma(α, θ))
     end
 end
 
@@ -44,15 +32,7 @@ end
     rng = StableRNG(123)
     for _ in 1:10
         α, θ = rand(rng)*10, rand(rng)*10
-        N = 10^6
-        
-        q = Gamma(α, θ)
-
-        samples = rand(rng, q, 10^6)
-
-        fn = Square() ∘ log
-        transformed_samples = fn.(samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), fn, q), mean(transformed_samples), std(transformed_samples), N)
+        central_limit_theorem_test(ClosedFormExpectation(), Square() ∘ log, Gamma(α, θ))
     end
 end
 
@@ -66,15 +46,7 @@ end
     rng = StableRNG(123)
     for _ in 1:10
         α, θ = rand(rng)*10, rand(rng)*10
-        N = 10^6
-        
-        q = Gamma(α, θ)
-
-        samples = rand(rng, q, 10^6)
-
-        fn = Power(Val(3)) ∘ log
-        transformed_samples = fn.(samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), fn, q), mean(transformed_samples), std(transformed_samples), N)
+        central_limit_theorem_test(ClosedFormExpectation(), Power(Val(3)) ∘ log, Gamma(α, θ))
     end
 end
 
@@ -88,14 +60,7 @@ end
     rng = StableRNG(123)
     for _ in 1:10
         α, θ = rand(rng)*10, rand(rng)*10
-        N = 10^6
-        
-        q = Gamma(α, θ)
-
-        samples = rand(rng, q, 10^6)
-
-        transformed_samples = xlog2x.(samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), xlog2x, q), mean(transformed_samples), std(transformed_samples), N)
+        central_limit_theorem_test(ClosedFormExpectation(), xlog2x, Gamma(α, θ))
     end
 end
 
@@ -110,14 +75,21 @@ end
     for _ in 1:10
         μ, σ = rand(rng)*10, rand(rng)*10
         α, θ = rand(rng)*10, rand(rng)*10
-        N = 10^6
-        
-        q = Gamma(α, θ)
+        central_limit_theorem_test(ClosedFormExpectation(), log ∘ ExpLogSquare(μ, σ), Gamma(α, θ))
+    end
+end
 
-        samples = rand(rng, q, 10^6)
-
-        fn = log ∘ ExpLogSquare(μ, σ)
-        transformed_samples = fn.(samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), fn, q), mean(transformed_samples), std(transformed_samples), N)
+@testitem "mean(::ClosedFormExpectation, Logpdf{Lognormal}, ::Gamma)" begin
+    using Distributions
+    using ClosedFormExpectations
+    using StableRNGs
+    using SpecialFunctions
+    
+    include("../test_utils.jl")
+    rng = StableRNG(123)
+    for _ in 1:10
+        μ, σ = rand(rng)*10, rand(rng)*10
+        α, θ = rand(rng)*10, rand(rng)*10
+        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(LogNormal(μ, σ)), Gamma(α, θ))
     end
 end
