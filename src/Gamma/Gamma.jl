@@ -34,3 +34,10 @@ function mean(strategy::ClosedFormExpectation, ::ComposedFunction{Power{Val{3}},
     return polygamma(2, shape(q)) + 3*Elogx * Elog2x - 2*Elogx^3
 end
 
+
+function mean(strategy::ClosedFormExpectation, p::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Gamma) where {T}
+    μ, σ = p.inner.μ, p.inner.σ
+    Elogx = mean(strategy, log, q)
+    Elog2x = mean(strategy, Square() ∘ log, q)
+    return -1/(2*σ^2)*(μ^2 - 2*μ*Elogx + Elog2x)
+end

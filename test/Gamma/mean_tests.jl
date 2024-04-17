@@ -98,3 +98,26 @@ end
         @test sigma_rule(mean(ClosedFormExpectation(), xlog2x, q), mean(transformed_samples), std(transformed_samples), N)
     end
 end
+
+@testitem "mean(::ClosedFormExpectation, log ∘ ExpLogSquare, ::Gamma)" begin
+    using Distributions
+    using ClosedFormExpectations
+    using StableRNGs
+    using SpecialFunctions
+    
+    include("../test_utils.jl")
+    rng = StableRNG(123)
+    for _ in 1:10
+        μ, σ = rand(rng)*10, rand(rng)*10
+        α, θ = rand(rng)*10, rand(rng)*10
+        N = 10^6
+        
+        q = Gamma(α, θ)
+
+        samples = rand(rng, q, 10^6)
+
+        fn = log ∘ ExpLogSquare(μ, σ)
+        transformed_samples = fn.(samples)
+        @test sigma_rule(mean(ClosedFormExpectation(), fn, q), mean(transformed_samples), std(transformed_samples), N)
+    end
+end
