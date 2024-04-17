@@ -6,6 +6,7 @@ version = "0.0.2"
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LogExpFunctions = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
 Aqua = "0.8.4"
@@ -13,7 +14,9 @@ CpuId = "0.3.1"
 Distributions = "0.25"
 LogExpFunctions = "0.3"
 ReTestItems = "1.23.1"
+SpecialFunctions = "2.3.1"
 StableRNGs = "1.0.1"
+
 Test = "<0.0.1, 1"
 julia = "1.10"
 

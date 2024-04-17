@@ -46,7 +46,6 @@ include("expressions/Product.jl")
 # rules for computing expectation of log
 include("Exponential/Exponential.jl")
 include("Normal/UnivariateNormal.jl")
-
-
+include("Gamma/Gamma.jl")
 
 end
