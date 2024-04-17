@@ -13,7 +13,7 @@ export ClosedWilliamsProduct
 struct ClosedFormExpectation end
 
 """
-    mean(::ClosedFormExpectation, q, f)
+    mean(::ClosedFormExpectation, f, q)
 
 Compute the E_q[f(x)] where q is a distribution and f is a function.
 """
@@ -22,7 +22,7 @@ function mean(::ClosedFormExpectation, ::Nothing, ::Nothing) end
 struct ClosedWilliamsProduct end 
 
 """
-    mean(::ClosedWilliamsProduct, q, f)
+    mean(::ClosedWilliamsProduct, f, q)
 
 Suppose q is a distribution with density parameterized by θ and f is a function.
 
@@ -36,6 +36,9 @@ function (f::ComposedFunction{typeof(log), T})(x) where {T <: Expression}
     return log(f.inner, x)
 end
 
+# Logpdf structure
+include("logpdf.jl")
+
 # expressions
 include("expressions/ExpLogSquare.jl")
 include("expressions/Product.jl")
@@ -43,5 +46,7 @@ include("expressions/Product.jl")
 # rules for computing expectation of log
 include("Exponential/Exponential.jl")
 include("Normal/UnivariateNormal.jl")
+
+
 
 end

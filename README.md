@@ -18,10 +18,14 @@ The package exports the following:
 
 `ClosedWilliamsProduct`: A struct representing the closed-form expectation of the product of score function and a target function (the gradient of the `ClosedFormExpectation`)
 
+`Logpdf`: A struct to represent the logpdf function of a distribution
+
 ## Usage
 
 ```julia
 using ClosedFormExpectations
 using Distributions
-mean(ClosedFormExpectation(), Exponetial(10), log)
+mean(ClosedFormExpectation(), log, Exponetial(10))
+mean(ClosedFormExpectation(), Logpdf(LogNormal(1, 10)), Exponetial(10))
+mean(ClosedFormExpectation(), Base.Fix1(logpdf, Exponential(1)), Exponential(10))
 ```

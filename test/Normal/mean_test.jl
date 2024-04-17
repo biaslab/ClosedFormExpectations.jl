@@ -1,4 +1,4 @@
-@testitem "mean(::Normal, ::Normal)" begin
+@testitem "mean(::ClosedFormExpectation, ::Logpdf{Normal}, ::Normal)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -11,11 +11,11 @@
         N = 10^5
         samples = rand(rng, Normal(μ_1, σ_1), N)
         log_samples = map(x -> logpdf(Normal(μ_2, σ_2),x),samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), Normal(μ_1, σ_1), log ∘ Normal(μ_2, σ_2)), mean(log_samples), std(log_samples), N)
+        @test sigma_rule(mean(ClosedFormExpectation(), Logpdf(Normal(μ_2, σ_2)), Normal(μ_1, σ_1)), mean(log_samples), std(log_samples), N)
     end
 end
 
-@testitem "meanlog(::Normal, ::Laplace)" begin
+@testitem "mean(::ClosedFormExpectation, ::Logpdf{Laplace}, ::Normal)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -30,6 +30,6 @@ end
         laplace = Laplace(μ_2, θ)
         samples = rand(rng, normal, N)
         log_samples = map(x -> logpdf(laplace,x),samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), normal, log ∘ laplace), mean(log_samples), std(log_samples), N)
+        @test sigma_rule(mean(ClosedFormExpectation(), Logpdf(laplace), normal), mean(log_samples), std(log_samples), N)
     end
 end
