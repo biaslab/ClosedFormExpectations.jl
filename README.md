@@ -25,7 +25,7 @@ The package exports the following:
 ```julia
 using ClosedFormExpectations
 using Distributions
-mean(ClosedFormExpectation(), log, Exponetial(10))
-mean(ClosedFormExpectation(), Logpdf(LogNormal(1, 10)), Exponetial(10))
+mean(ClosedFormExpectation(), log, Exponential(10))
+mean(ClosedFormExpectation(), Logpdf(LogNormal(1, 10)), Exponential(10))
 mean(ClosedFormExpectation(), Base.Fix1(logpdf, Exponential(1)), Exponential(10))
 ```
