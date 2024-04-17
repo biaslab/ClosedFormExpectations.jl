@@ -18,7 +18,7 @@
         q = Gamma(α, θ)
         samples = rand(rng, q, 10^6)
         williams_product = map(x -> score(q, x)*log(x), samples)
-        for (expectation, mean, std) in zip(mean(williams_product), mean(ClosedWilliamsProduct(), log, q), std(williams_product))
+        for (expectation, mean, std) in zip(mean(ClosedWilliamsProduct(), log, q), mean(williams_product), std(williams_product))
             @test sigma_rule(expectation, mean, std, N)
         end
     end

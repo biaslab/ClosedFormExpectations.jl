@@ -1,4 +1,5 @@
-import SpecialFunctions: digamma
+using StaticArrays
+import SpecialFunctions: digamma, polygamma
 import Distributions: Gamma, shape, rate
 
 function mean(::ClosedFormExpectation, p::typeof(log), q::Gamma)
@@ -6,7 +7,7 @@ function mean(::ClosedFormExpectation, p::typeof(log), q::Gamma)
 end
 
 function mean(::ClosedWilliamsProduct, p::typeof(log), q::Gamma)
-    return [
+    return @SVector [
         polygamma(1, shape(q)),
         1/scale(q)
     ]
