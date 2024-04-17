@@ -73,7 +73,7 @@ end
     end
 end
 
-@testitem "mean(::ClosedWilliamsProduct, Exponential, Exponential}" begin
+@testitem "mean(::ClosedWilliamsProduct, Logpdf{Exponential}, Exponential}" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs

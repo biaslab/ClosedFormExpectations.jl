@@ -42,6 +42,9 @@ include("logpdf.jl")
 # expressions
 include("expressions/ExpLogSquare.jl")
 include("expressions/Product.jl")
+include("expressions/Square.jl")
+include("expressions/Power.jl")
+include("expressions/xlog2x.jl")
 
 # rules for computing expectation of log
 include("Exponential/Exponential.jl")
