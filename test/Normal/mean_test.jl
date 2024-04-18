@@ -8,10 +8,7 @@
     for _ in 1:10
         μ_1, σ_1  = rand(rng)*10, rand(rng)*5
         μ_2, σ_2  = rand(rng)*10, rand(rng)*5
-        N = 10^5
-        samples = rand(rng, Normal(μ_1, σ_1), N)
-        log_samples = map(x -> logpdf(Normal(μ_2, σ_2),x),samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), Logpdf(Normal(μ_2, σ_2)), Normal(μ_1, σ_1)), mean(log_samples), std(log_samples), N)
+        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(Normal(μ_2, σ_2)), Normal(μ_1, σ_1))
     end
 end
 
@@ -26,10 +23,6 @@ end
     for _ in 1:10
         μ_1, σ  = rand(rng)*10, rand(rng)*5
         μ_2, θ   = rand(rng)*10, rand(rng)*5
-        normal = Normal(μ_1, σ)
-        laplace = Laplace(μ_2, θ)
-        samples = rand(rng, normal, N)
-        log_samples = map(x -> logpdf(laplace,x),samples)
-        @test sigma_rule(mean(ClosedFormExpectation(), Logpdf(laplace), normal), mean(log_samples), std(log_samples), N)
+        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(Laplace(μ_2, θ)), Normal(μ_1, σ))
     end
 end
