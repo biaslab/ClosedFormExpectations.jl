@@ -1,4 +1,4 @@
-@testitem "mean(::ClosedWilliamsProduct, p::log, q::Exponential)" begin
+@testitem "mean(::ClosedWilliamsProduct, ::log, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -17,7 +17,7 @@
     end
 end
 
-@testitem "mean(::ClosedWilliamsProduct, p::log ∘ ExpLogSquare, q::Exponential)" begin
+@testitem "mean(::ClosedWilliamsProduct, ::log ∘ ExpLogSquare, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -38,7 +38,7 @@ end
     end
 end
 
-@testitem "mean(::ClosedWilliamsProduct, f::Logpdf{LogNormal}, q::Exponential)" begin
+@testitem "mean(::ClosedWilliamsProduct, ::Logpdf{LogNormal}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -59,7 +59,7 @@ end
     end
 end
 
-@testitem "mean(::ClosedWilliamsProduct, Logpdf{Exponential}, Exponential}" begin
+@testitem "mean(::ClosedWilliamsProduct, ::Logpdf{Exponential}, ::Exponential}" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
