@@ -48,9 +48,23 @@ function mean(strategy::ClosedFormExpectation, f::ComposedFunction{typeof(log), 
     return -1/(2*σ^2)*(μ^2 - 2*μ*Elogx + Elog2x)
 end
 
+function mean(strategy::ClosedWilliamsProduct, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Gamma) where {T}
+    μ, σ = f.inner.μ, f.inner.σ
+    Elogx = mean(strategy, log, q)
+    Elog2x = mean(strategy, Square() ∘ log, q)
+    return (2*μ*Elogx - Elog2x)/(2*σ^2)
+end
+
 function mean(strategy::ClosedFormExpectation, f::Logpdf{LogNormal{T}}, q::Gamma) where {T}
     μ, σ = f.dist.μ, f.dist.σ
     E_logexplogsquare = mean(strategy, log ∘ ExpLogSquare(μ, σ), q)
     E_logx = mean(strategy, log, q)
     return E_logexplogsquare - E_logx - log(σ) - 0.5*log(2pi)
+end
+
+function mean(strategy::ClosedWilliamsProduct, f::Logpdf{LogNormal{T}}, q::Gamma) where {T}
+    μ, σ = f.dist.μ, f.dist.σ
+    E_logexplogsquare = mean(strategy, log ∘ ExpLogSquare(μ, σ), q)
+    E_logx = mean(strategy, log, q)
+    return E_logexplogsquare - E_logx
 end
