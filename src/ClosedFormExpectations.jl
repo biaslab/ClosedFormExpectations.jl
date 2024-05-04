@@ -48,7 +48,10 @@ include("expressions/xlog2x.jl")
 
 # rules for computing expectation of log
 include("Exponential/Exponential.jl")
-include("Normal/UnivariateNormal.jl")
+# normal
+include("Normal/expectation.jl")
+include("Normal/williams.jl")
+# gamma
 include("Gamma/Gamma.jl")
 
 end
