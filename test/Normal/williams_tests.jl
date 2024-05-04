@@ -18,8 +18,7 @@ end
         func_var(x) = mean(ClosedFormExpectation(), Logpdf(Laplace(μ_2, θ)), Normal(μ_1, x))
         williams_result = mean(ClosedWilliamsProduct(), Logpdf(Laplace(μ_2, θ)), Normal(μ_1, σ))
         @test central_fdm(5, 1)(func_var, σ) ≈ williams_result[2]
-        # the derivative over the mean is numerically unstable, so test against the exact value
-        # commented out test below
+        # the derivative over the mean is numerically unstable, the test is made against the exact value
         # @test central_fdm(5, 1)(x -> mean(ClosedFormExpectation(), Logpdf(Laplace(μ_2, θ)), Normal(x, σ)), μ_1) ≈ williams_result[1]
         @test -1/(2*θ) ≈ williams_result[1]
     end
