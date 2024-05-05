@@ -13,16 +13,19 @@ end
     using SpecialFunctions
     rng = StableRNG(123)
 
-    for _ in 1:10
-        @testset "μ and loc are equal" begin
+
+    @testset "μ and loc are equal" begin
+        for _ in 1:10
             μ_1, σ = rand(rng)*10, rand(rng)*10
             θ = rand(rng)*10
             williams_result = mean(ClosedWilliamsProduct(), Logpdf(Laplace(μ_1, θ)), Normal(μ_1, σ))
             @test -1/(2*θ) ≈ williams_result[1]
             @test williams_result[2] ≈ -2/(sqrt(2π)*θ)
         end
+    end
 
-        @testset "μ = loc ± σ, θ = 0.5" begin
+    @testset "μ = loc ± σ, θ = 0.5" begin
+        for _ in 1:10
             μ_2, θ = rand(rng)*10, 0.5
             σ = rand(rng)*10
         
@@ -36,9 +39,10 @@ end
             exp_part = exp(-1/2)
             @test williams_result_left[2] ≈ exp_part * -6/sqrt(2π)
         end
+    end
 
-        @testset "μ ≠ loc, loc = 0" begin
-            
+    @testset "μ ≠ loc, loc = 0" begin
+        for _ in 1:10
             μ_1, σ = rand(rng)*10, rand(rng)*10
             θ = rand(rng)*10
 
