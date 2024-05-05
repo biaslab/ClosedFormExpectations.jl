@@ -49,6 +49,9 @@ end
 
             @test williams_result_left[1] + williams_result_right[1] ≈ -1/θ
             @test williams_result_left[2] ≈ williams_result_right[2]
+            
+            exp_part = exp(-μ_1^2/(2*σ^2))
+            @test williams_result_right[2] ≈ exp_part * (-μ_1^2-2*σ^2)/(sqrt(2π)*θ*σ^2)
         end
     end
 end
