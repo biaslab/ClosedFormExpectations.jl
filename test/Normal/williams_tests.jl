@@ -22,8 +22,8 @@ end
             @test williams_result[2] ≈ -2/(sqrt(2π)*θ)
         end
 
-        @testset "μ = loc ± σ" begin
-            μ_2, θ = rand(rng)*10, rand(rng)*10
+        @testset "μ = loc ± σ, θ = 0.5" begin
+            μ_2, θ = rand(rng)*10, 0.5
             σ = rand(rng)*10
         
             williams_result_right = mean(ClosedWilliamsProduct(), Logpdf(Laplace(μ_2, 1/2)), Normal(μ_2 + σ, σ))
@@ -33,6 +33,8 @@ end
             @test -1 - sqrt(2/(MathConstants.e * π)) + erf(1/sqrt(2)) ≈ williams_result_left[1]
 
             @test williams_result_right[2] ≈ williams_result_left[2]
+            exp_part = exp(-1/2)
+            @test williams_result_left[2] ≈ exp_part * -6/sqrt(2π)
         end
 
         @testset "μ ≠ loc, loc = 0" begin
