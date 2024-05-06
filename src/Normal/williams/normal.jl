@@ -15,7 +15,7 @@ function mean(::ClosedWilliamsProduct, p::Logpdf{NormalType}, q::Normal{T}) wher
     μ_q, σ_q = mean(q), std(q)
     μ_p, σ_p = mean(p.dist), std(p.dist)
     return @SVector [
-        -(μ_p - μ_q)/σ_p^2,
+        (μ_p - μ_q)/σ_p^2,
         -σ_q/σ_p^2
     ]
 end
