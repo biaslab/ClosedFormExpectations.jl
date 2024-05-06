@@ -21,53 +21,9 @@ end
     include("normal_utils.jl")
     using SpecialFunctions
     rng = StableRNG(123)
-
-    error("Not implemented")
-
-    # @testset "μ and loc are equal" begin
-    #     for _ in 1:10
-    #         μ_1, σ = rand(rng)*10, rand(rng)*10
-    #         θ = rand(rng)*10
-    #         williams_result = mean(ClosedWilliamsProduct(), Logpdf(Laplace(μ_1, θ)), Normal(μ_1, σ))
-    #         @test -1/(2*θ) ≈ williams_result[1]
-    #         @test williams_result[2] ≈ -2/(sqrt(2π)*θ)
-    #     end
-    # end
-
-    # @testset "μ = loc ± σ, θ = 0.5" begin
-    #     for _ in 1:10
-    #         μ_2, θ = rand(rng)*10, 0.5
-    #         σ = rand(rng)*10
-        
-    #         williams_result_right = mean(ClosedWilliamsProduct(), Logpdf(Laplace(μ_2, 1/2)), Normal(μ_2 + σ, σ))
-    #         @test -1 + sqrt(2/(MathConstants.e * π)) - erf(1/sqrt(2)) ≈ williams_result_right[1]
-
-    #         williams_result_left = mean(ClosedWilliamsProduct(), Logpdf(Laplace(μ_2, 1/2)), Normal(μ_2 - σ, σ))
-    #         @test -1 - sqrt(2/(MathConstants.e * π)) + erf(1/sqrt(2)) ≈ williams_result_left[1]
-
-    #         @test williams_result_right[2] ≈ williams_result_left[2]
-    #         exp_part = exp(-1/2)
-    #         @test williams_result_left[2] ≈ exp_part * -6/sqrt(2π)
-    #     end
-    # end
-
-    # @testset "μ ≠ loc, loc = 0" begin
-    #     for _ in 1:10
-    #         μ_1, σ = rand(rng)*10, rand(rng)*10
-    #         θ = rand(rng)*10
-
-    #         centered_laplace = Laplace(0, θ)
-    #         right_normal = Normal(μ_1, σ)
-    #         left_normal  = Normal(-μ_1, σ)
-
-    #         williams_result_left = mean(ClosedWilliamsProduct(), Logpdf(centered_laplace), left_normal)
-    #         williams_result_right = mean(ClosedWilliamsProduct(), Logpdf(centered_laplace), right_normal)
-
-    #         @test williams_result_left[1] + williams_result_right[1] ≈ -1/θ
-    #         @test williams_result_left[2] ≈ williams_result_right[2]
-            
-    #         exp_part = exp(-μ_1^2/(2*σ^2))
-    #         @test williams_result_right[2] ≈ exp_part * (-μ_1^2-2*σ^2)/(sqrt(2π)*θ*σ^2)
-    #     end
-    # end
+    μ, σ = 1, 1
+    θ = 1
+    williams_result_abs = -1/θ * mean(ClosedWilliamsProduct(), Abs(), Normal(μ, σ))
+    williams_result_laplace = mean(ClosedWilliamsProduct(), Logpdf(Laplace(0, θ)), Normal(μ, σ))
+    @test -williams_result_abs ≈ williams_result_laplace     
 end
