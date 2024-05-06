@@ -47,7 +47,7 @@ include("expressions/Product.jl")
 include("expressions/Square.jl")
 include("expressions/Power.jl")
 include("expressions/xlog2x.jl")
-
+include("expressions/Abs.jl")
 # rules for computing expectation of log
 include("Exponential/Exponential.jl")
 # normal
