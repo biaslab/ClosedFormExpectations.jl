@@ -21,13 +21,8 @@ function mean(::ClosedWilliamsProduct, p::Logpdf{NormalType}, q::Normal{T}) wher
 end
 
 function mean(::ClosedWilliamsProduct, p::Logpdf{Laplace{T}}, q::Normal{T}) where {T}
-    μ, σ = mean(q), std(q)
     (loc, θ) = params(p.dist)
-    diff = loc - μ
-    exp_part = exp(-diff^2/(2*σ^2))
-    erf_part = erf((-loc + μ)/(sqrt(2) * σ))
-    return @SVector [
-        -(1 + (exp_part * sqrt(2/π) * diff)/σ + erf_part)/(2*θ),
-        (exp_part * (-diff^2 - 2*σ^2))/(sqrt(2*π) * θ * σ^2)
-    ]
+    normal = Normal(mean(q) - loc, std(q))
+    abs_mean = mean(ClosedWilliamsProduct(), Abs(), normal)
+    return -1/θ * abs_mean
 end
