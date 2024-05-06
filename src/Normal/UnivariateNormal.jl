@@ -14,3 +14,8 @@ function mean(::ClosedFormExpectation, p::Logpdf{Laplace{T}}, q::GaussianDistrib
     diff = μ_p - μ_q
     return - log(2*θ_p) - θ_p^(-1) * ( 2 * (σ_q/sqrt(2*π)) * exp(-diff^2/(2*σ_q^2))  +  diff * (2 * cdf(normal,diff) - 1) )
 end 
+
+function mean(::ClosedFormExpectation, f::Abs, q::GaussianDistributionsFamily)
+    μ, σ = mean(q), std(q)
+    return μ*erf(μ/(sqrt(2)*σ)) + sqrt(2/π)*std(q)*exp(-μ^2/(2*σ^2))
+end
