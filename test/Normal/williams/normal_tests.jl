@@ -19,11 +19,22 @@ end
 
 @testitem "mean(::ClosedWilliamsProduct, p::Logpdf{Laplace}, q::Normal)" begin
     include("normal_utils.jl")
-    using SpecialFunctions
+    
     rng = StableRNG(123)
-    μ, σ = 1, 1
-    θ = 1
-    williams_result_abs = -1/θ * mean(ClosedWilliamsProduct(), Abs(), Normal(μ, σ))
-    williams_result_laplace = mean(ClosedWilliamsProduct(), Logpdf(Laplace(0, θ)), Normal(μ, σ))
-    @test -williams_result_abs ≈ williams_result_laplace     
+
+    for _ in 1:10
+        μ, σ = rand(rng)*10, rand(rng)*5
+        loc, θ = rand(rng)*10, rand(rng)*10
+        central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(Laplace(0, θ)), Normal(μ, σ), score)
+    end
+
+    @testset "compare Logpdf(Laplace) gradient with Abs gradient" begin
+        for _ in 1:10
+            μ, σ = rand(rng)*10, rand(rng)*5
+            θ = rand(rng)*10
+            williams_result_abs = -1/θ*mean(ClosedWilliamsProduct(), Abs(), Normal(μ, σ))
+            williams_result_laplace = mean(ClosedWilliamsProduct(), Logpdf(Laplace(0, θ)), Normal(μ, σ))
+            @test williams_result_abs ≈ williams_result_laplace
+        end
+    end   
 end
