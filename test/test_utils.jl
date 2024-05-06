@@ -1,5 +1,6 @@
 using ClosedFormExpectations
-
+import Distributions: Normal, Laplace, std
+using StableRNGs
 
 function sigma_rule(expectation, mean, std, N)::Bool
     return mean - 3*std/sqrt(N) < expectation < mean + 3*std/sqrt(N)
