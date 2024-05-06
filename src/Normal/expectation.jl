@@ -1,5 +1,6 @@
 import Distributions: Laplace, Normal, Rayleigh, params, cdf, std
 import ExponentialFamily: GaussianDistributionsFamily
+using SpecialFunctions: erf
 
 function mean(::ClosedFormExpectation, p::Logpdf{NormalType}, q::GaussianDistributionsFamily) where {NormalType <: GaussianDistributionsFamily}
     μ_q, σ_q = mean(q), std(q)
@@ -15,3 +16,8 @@ function mean(::ClosedFormExpectation, p::Logpdf{Laplace{T}}, q::GaussianDistrib
     cdf_part = 2 * cdf(normal, diff) - 1
     return - log(2*θ_p) - θ_p^(-1) * ( 2 * (σ_q/sqrt(2*π)) * exp(-diff^2/(2*σ_q^2))  +  diff * cdf_part)
 end 
+
+function mean(::ClosedFormExpectation, f::Abs, q::GaussianDistributionsFamily)
+    μ, σ = mean(q), std(q)
+    return μ*erf(μ/(sqrt(2)*σ)) + sqrt(2/π)*std(q)*exp(-μ^2/(2*σ^2))
+end
