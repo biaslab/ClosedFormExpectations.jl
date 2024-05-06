@@ -1,5 +1,5 @@
 using ClosedFormExpectations
-import Distributions: Normal, Laplace, Gamma, LogNormal, std
+import Distributions: Normal, Laplace, Gamma, LogNormal, std, shape, scale
 using StableRNGs
 
 function sigma_rule(expectation, mean, std, N)::Bool
