@@ -25,7 +25,7 @@ end
     for _ in 1:10
         μ, σ = rand(rng)*10, rand(rng)*5
         loc, θ = rand(rng)*10, rand(rng)*10
-        central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(Laplace(0, θ)), Normal(μ, σ), score)
+        central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(Laplace(loc, θ)), Normal(μ, σ), score)
     end
 
     @testset "compare Logpdf(Laplace) gradient with Abs gradient" begin
