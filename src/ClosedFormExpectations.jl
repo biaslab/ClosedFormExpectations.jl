@@ -1,5 +1,7 @@
 module ClosedFormExpectations
 
+export mean
+
 import Base: log
 import Distributions: mean
 
