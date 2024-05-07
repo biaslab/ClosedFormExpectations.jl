@@ -54,7 +54,8 @@ include("Exponential/Exponential.jl")
 # normal 
 include("Normal/expectation.jl")
 include("Normal/williams/normal.jl")
-
+include("Normal/williams/normal_mean_variance.jl")
+# gamma
 include("Gamma/Gamma.jl")
 
 end

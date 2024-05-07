@@ -34,5 +34,6 @@ end
         @test mean(ClosedWilliamsProduct(), Logpdf(nmv), Normal(0, 1)) isa AbstractArray
         @test mean(ClosedWilliamsProduct(), Logpdf(nmp), Normal(0, 1)) isa AbstractArray
         @test mean(ClosedWilliamsProduct(), Logpdf(nmv), Normal(0, 1)) ≈ mean(ClosedWilliamsProduct(), Logpdf(nmp), Normal(0, 1))
+        @test mean(ClosedWilliamsProduct(), Logpdf(nmv), nmv) ≈ mean(ClosedWilliamsProduct(), Logpdf(nmp), nmv)
     end
 end
