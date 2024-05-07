@@ -52,7 +52,7 @@ include("expressions/Abs.jl")
 # rules for computing expectations
 include("Exponential/Exponential.jl")
 # normal 
-include("Normal/UnivariateNormal.jl")
+include("Normal/expectation.jl")
 include("Normal/williams/normal.jl")
 
 include("Gamma/Gamma.jl")
