@@ -55,3 +55,19 @@ end
         central_limit_theorem_test(ClosedFormExpectation(), Logpdf(Exponential(λ2)), Exponential(λ1))
     end
 end
+
+@testitem "mean(::ClosedFormExpectation, ::Logpdf{Exponential}, ::ExponentialFamilyDistribution{Exponential}" begin
+    using Distributions
+    using ClosedFormExpectations
+    using ExponentialFamily
+    using StableRNGs
+    using Base.MathConstants: eulergamma
+
+    include("../test_utils.jl")
+    rng = StableRNG(123)
+    for _ in 1:10
+        λ1 = rand(rng)*10
+        λ2 = rand(rng)*10
+        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(Exponential(λ2)), convert(ExponentialFamilyDistribution, Exponential(λ1)))
+    end
+end

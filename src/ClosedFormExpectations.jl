@@ -58,4 +58,7 @@ include("Normal/williams/normal_mean_variance.jl")
 # gamma
 include("Gamma/Gamma.jl")
 
+# exponetial family distribution interface
+include("exponential_family_interface.jl")
+
 end
