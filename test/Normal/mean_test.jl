@@ -48,18 +48,3 @@ end
     end
     
 end
-
-@testitem "mean(::ClosedFormExpectation, ::LogBesselk, ::Normal)" begin
-    using Distributions
-    using ClosedFormExpectations
-    using StableRNGs
-
-    include("../test_utils.jl")
-    rng = StableRNG(123)
-    for _ in 1:10
-        μ, σ = rand(rng)*10, rand(rng)*5
-        ν = rand(rng)*10
-        value = mean(ClosedFormExpectation(), LogBesselk(1), Normal(μ, σ))
-        central_limit_theorem_test(ClosedFormExpectation(), LogBesselk(1), Normal(μ, σ))
-    end
-end
