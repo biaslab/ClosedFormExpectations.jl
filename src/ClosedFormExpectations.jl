@@ -48,6 +48,7 @@ include("expressions/Square.jl")
 include("expressions/Power.jl")
 include("expressions/xlog2x.jl")
 include("expressions/Abs.jl")
+include("expressions/LogBesselk.jl")
 
 # rules for computing expectations
 include("Exponential/Exponential.jl")
