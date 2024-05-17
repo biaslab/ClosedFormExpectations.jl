@@ -50,6 +50,9 @@ include("expressions/xlog2x.jl")
 include("expressions/Abs.jl")
 include("expressions/LogBesselk.jl")
 
+# extra distributions
+include("expressions/distributions/LogGamma.jl")
+
 # rules for computing expectations
 include("Exponential/Exponential.jl")
 # normal 
