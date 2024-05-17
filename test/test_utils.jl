@@ -23,6 +23,13 @@ function central_limit_theorem_test(::ClosedFormExpectation, f, q, N = 10^6)
     samples = rand(rng, q, N)
     transformed_samples = f.(samples)
     expectation = mean(ClosedFormExpectation(), f, q)
+    result = sigma_rule(expectation, mean(transformed_samples), std(transformed_samples), N)
+    if !result
+        println("Test failed for functions $f and $q")
+        println("expectation: ", expectation)
+        println("mean: ", mean(transformed_samples))
+        println("std: ", std(transformed_samples))
+    end
     @test sigma_rule(expectation, mean(transformed_samples), std(transformed_samples), N)
 end
 

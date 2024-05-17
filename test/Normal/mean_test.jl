@@ -1,7 +1,5 @@
 @testitem "mean(::ClosedFormExpectation, ::Logpdf{Normal}, ::Normal)" begin
     using Distributions
-    using ClosedFormExpectations
-    using StableRNGs
 
     include("../test_utils.jl")
     rng = StableRNG(123)
@@ -14,8 +12,6 @@ end
 
 @testitem "mean(::ClosedFormExpectation, ::Logpdf{Laplace}, ::Normal)" begin
     using Distributions
-    using ClosedFormExpectations
-    using StableRNGs
 
     include("../test_utils.jl")
     rng = StableRNG(123)
@@ -28,8 +24,6 @@ end
 
 @testitem "mean(::ClosedFormExpectation, ::Abs, ::Normal)" begin
     using Distributions
-    using ClosedFormExpectations
-    using StableRNGs
 
     include("../test_utils.jl")
     rng = StableRNG(123)
@@ -47,4 +41,17 @@ end
         @test log(0.5*1/θ) - 1/θ * value ≈ value_laplace
     end
     
+end
+
+@testitem "mean(::ClosedFormExpectation, ::Logpdf{LogGamma}, ::Normal)" begin
+    using Distributions
+
+    include("../test_utils.jl")
+    rng = StableRNG(123)
+    for _ in 1:10
+        α, β = rand(rng)*10, 1+rand(rng)
+        μ, σ = rand(rng)*10, 1+rand(rng)
+        value = mean(ClosedFormExpectation(), Logpdf(LogGamma(α, β)), Normal(μ, σ))
+        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(LogGamma(α, β)), Normal(μ, σ))
+    end
 end
