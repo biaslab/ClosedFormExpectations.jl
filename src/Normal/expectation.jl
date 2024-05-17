@@ -9,7 +9,7 @@ function mean(::ClosedFormExpectation, p::Logpdf{NormalType}, q::GaussianDistrib
 end
 
 function mean(::ClosedFormExpectation, p::Logpdf{Laplace{T}}, q::GaussianDistributionsFamily) where {T}
-    (loc, θ_p) = params(p.dist)
+    (loc, θ_p) = Distributions.params(p.dist)
     normal = Normal(mean(q) - loc, std(q))
     return -log(2*θ_p) - θ_p^(-1) * mean(ClosedFormExpectation(), Abs(), normal)
 end 
@@ -19,8 +19,8 @@ function mean(::ClosedFormExpectation, f::Abs, q::GaussianDistributionsFamily)
     return μ*erf(μ/(sqrt(2)*σ)) + sqrt(2/π)*std(q)*exp(-μ^2/(2*σ^2))
 end
 
-function mean(::ClosedFormExpectation, f::Logpdf{LogGamma}, q::GaussianDistributionsFamily)
+function mean(::ClosedFormExpectation, f::Logpdf{LogGamma{T}}, q::GaussianDistributionsFamily) where {T}
     α, β = params(f.dist)
     μ, σ = mean(q), std(q)
-    return β*μ - exp(μ + σ^2/2)/α - α*log(β) - loggamma(β)
+    return β*μ - exp(μ + σ^2/2 - log(α)) - β * log(α) - loggamma(β)
 end
