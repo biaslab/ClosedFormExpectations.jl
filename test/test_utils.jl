@@ -18,10 +18,15 @@ function concentration_rule(expectation, statistical_mean, N, α,sobolev_const, 
     return statistical_mean - ϵ < expectation < statistical_mean + ϵ
 end
 
+function prepare_samples(::Any, samples)
+    return samples
+end
+
 function central_limit_theorem_test(::ClosedFormExpectation, f, q, N = 10^6)
     rng = StableRNG(123)
     samples = rand(rng, q, N)
-    transformed_samples = f.(samples)
+    samples = prepare_samples(q, samples)
+    transformed_samples = map(f, samples)
     expectation = mean(ClosedFormExpectation(), f, q)
     result = sigma_rule(expectation, mean(transformed_samples), std(transformed_samples), N)
     if !result
