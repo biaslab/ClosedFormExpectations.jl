@@ -59,6 +59,8 @@ include("Normal/expectation.jl")
 include("Normal/williams/normal.jl")
 include("Normal/williams/normal_mean_variance.jl")
 include("Normal/williams/ef_parametrization.jl")
+# mv normal
+include("MvNormal/expectation.jl")
 
 # gamma
 include("Gamma/Gamma.jl")

@@ -19,7 +19,7 @@ end
 LogGamma(α::Real, β::Real; check_args::Bool=true) = LogGamma(promote(α, β)...; check_args=check_args)
 LogGamma(α::Integer, β::Integer; check_args::Bool=true) = LogGamma(float(α), float(β); check_args=check_args)
 
-@distr_support LogGamma 0.0 Inf
+@distr_support LogGamma -Inf Inf
 
 #### Conversions
 Base.convert(::Type{LogGamma{T}}, α::S, β::S) where {T <: Real, S <: Real} = LogGamma(T(α), T(β))
