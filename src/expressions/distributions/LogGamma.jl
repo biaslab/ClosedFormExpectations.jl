@@ -36,6 +36,6 @@ function Distributions.pdf(d::LogGamma, x::Real)
 end
 
 function Distributions.logpdf(d::LogGamma, x::Real)
-    α, β = params(d)
+    α, β = Distributions.params(d)
     return β * x - exp(x - log(α)) - β * log(α) - loggamma(β)
 end
