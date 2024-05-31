@@ -10,7 +10,9 @@ import Distributions: ContinuousMultivariateDistribution, params
 An unnormalized multivariate distribution derived from the LogGamma distribution. (see LogGamma)
 
 The LinearLogGamma distribution is an distribution on a multidimensional `x`, derived from the LogGamma distribution. It is defined as:
-$\widetilde{\mathcal{LG}}(x \mid \alpha, \beta, w) = \mathcal{LG}(x^{\top} w \mid a, b)$, 
+```math
+    LLG(x | \alpha, \beta, w) = LG(x^T w | a, b),
+``` 
 where weights is a fixed vector of covariates, and \alpha and \beta are the scale and shape parameters of the LogGamma distribution, respectively.
 Fields
 
