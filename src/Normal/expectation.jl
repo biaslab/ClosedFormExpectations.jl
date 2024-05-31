@@ -20,7 +20,7 @@ function mean(::ClosedFormExpectation, f::Abs, q::GaussianDistributionsFamily)
 end
 
 function mean(::ClosedFormExpectation, f::Logpdf{LogGamma{T}}, q::GaussianDistributionsFamily) where {T}
-    α, β = params(f.dist)
+    α, β = Distributions.params(f.dist)
     μ, σ = mean(q), std(q)
     return β*μ - exp(μ + σ^2/2 - log(α)) - β * log(α) - loggamma(β)
 end

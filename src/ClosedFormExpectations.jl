@@ -52,6 +52,9 @@ include("expressions/Abs.jl")
 # extra distributions
 include("expressions/distributions/LogGamma.jl")
 
+# extra multivariate distributions
+include("expressions/LinearLogGamma.jl")
+
 # rules for computing expectations
 include("Exponential/Exponential.jl")
 # normal 
