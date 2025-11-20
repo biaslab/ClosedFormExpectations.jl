@@ -67,6 +67,7 @@ include("MvNormal/expectation.jl")
 
 # gamma
 include("Gamma/Gamma.jl")
+include("Gamma/williams_gamma_ef.jl")
 
 # exponetial family distribution interface
 include("exponential_family_interface.jl")
