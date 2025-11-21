@@ -16,3 +16,7 @@ function (f::Logpdf{D})(args...) where {D <: Distribution}
 end
 
 mean(::ClosedFormExpectation, f::Base.Fix1{typeof(logpdf), D}, q) where {D} = mean(ClosedFormExpectation(), Logpdf(f.x), q)
+
+# Bridge to handle raw distributions as Logpdf targets
+mean(c::ClosedWilliamsProduct, d::Distribution, q) = mean(c, Logpdf(d), q)
+mean(c::ClosedFormExpectation, d::Distribution, q) = mean(c, Logpdf(d), q)
