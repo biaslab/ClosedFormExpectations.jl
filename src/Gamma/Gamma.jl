@@ -68,3 +68,22 @@ function mean(strategy::ClosedWilliamsProduct, f::Logpdf{LogNormal{T}}, q::Gamma
     E_logx = mean(strategy, log, q)
     return E_logexplogsquare - E_logx
 end
+
+function mean(::ClosedWilliamsProduct, p::Logpdf{Gamma{T}}, q::Gamma{S}) where {T,S}
+    α_p, θ_p = shape(p.dist), scale(p.dist)
+    α_q, θ_q = shape(q), scale(q)
+    # ∇_{α_q} E_q[log p]
+    grad_shape = (α_p - 1) * polygamma(1, α_q) - θ_q / θ_p
+    # ∇_{θ_q} E_q[log p]
+    grad_scale = (α_p - 1) / θ_q - α_q / θ_p
+    return @SVector [grad_shape, grad_scale]
+end
+
+function mean(::ClosedFormExpectation, p::Logpdf{Gamma{T}}, q::Gamma{S}) where {T,S}
+    α_p, θ_p = shape(p.dist), scale(p.dist)
+    α_q, θ_q = shape(q), scale(q)
+    E_log_x = digamma(α_q) + log(θ_q)
+    E_x = α_q * θ_q
+    return -loggamma(α_p) - α_p * log(θ_p) + (α_p - 1) * E_log_x - E_x / θ_p
+end
+

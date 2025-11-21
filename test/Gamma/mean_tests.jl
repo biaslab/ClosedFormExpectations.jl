@@ -93,3 +93,20 @@ end
         central_limit_theorem_test(ClosedFormExpectation(), Logpdf(LogNormal(μ, σ)), Gamma(α, θ))
     end
 end
+
+@testitem "Gamma Cross Entropy" begin
+    using Distributions
+    using ClosedFormExpectations
+    using StableRNGs
+    using SpecialFunctions
+    include("../test_utils.jl")
+    rng = StableRNG(123)
+    @testset "Logpdf{Gamma} on Gamma" begin
+        for _ in 1:10
+            p_dist = Gamma(10rand(rng), 10rand(rng))
+            q = Gamma(10rand(rng), 10rand(rng))
+            central_limit_theorem_test(ClosedFormExpectation(), Logpdf(p_dist), q)
+        end 
+    end
+end
+
