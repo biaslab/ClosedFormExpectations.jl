@@ -26,3 +26,14 @@ function mean(::ClosedWilliamsProduct, p::Logpdf{Laplace{T}}, q::Normal{T}) wher
     abs_mean = mean(ClosedWilliamsProduct(), Abs(), normal)
     return -1/θ * abs_mean
 end
+
+function mean(::ClosedWilliamsProduct, f::Logpdf{LogGamma{T}}, q::Normal) where {T}
+    α, β = params(f.dist)
+    μ, σ = mean(q), std(q)
+    # Gradient of E[log p(x)] with respect to [μ, σ]
+    # E[log p(x)] = β*μ - exp(μ + σ²/2 - log(α)) - β * log(α) - loggamma(β)
+    exp_term = exp(μ + σ^2/2 - log(α))
+    ∂_μ = β - exp_term
+    ∂_σ = -σ * exp_term
+    return @SVector [∂_μ, ∂_σ]
+end
