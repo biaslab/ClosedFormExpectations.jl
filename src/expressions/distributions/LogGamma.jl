@@ -1,7 +1,7 @@
 export LogGamma
 
 using Distributions
-import Distributions: ContinuousUnivariateDistribution, @distr_support, @check_args
+import Distributions: ContinuousUnivariateDistribution, @distr_support, @check_args, mean, var
 
 """
     LogGamma(α, β)

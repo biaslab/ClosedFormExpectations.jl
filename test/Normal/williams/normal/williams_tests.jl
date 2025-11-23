@@ -38,3 +38,13 @@ end
         end
     end   
 end
+
+@testitem "mean(::ClosedWilliamsProduct, p::Logpdf{LogGamma}, q::Normal)" begin
+    include("normal_utils.jl")
+    rng = StableRNG(123)
+    for _ in 1:10
+        μ, σ = rand(rng)*10, rand(rng)*5
+        α, β = rand(rng)*10, rand(rng)*10
+        central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(LogGamma(α, β)), Normal(μ, σ), score)
+    end   
+end
