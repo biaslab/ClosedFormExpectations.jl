@@ -36,6 +36,13 @@ end
 # 2. Logpdf{ProductOf} vs ExponentialFamilyDistribution
 #    This method is Specific-F (Logpdf{ProductOf}) and Generic-Q (EF).
 #    It overrides the Generic-F entry point above.
+#    Since ProductOf is recursive, we handle it by decomposing and recursing.
+#    We do NOT call mean_ef_impl here, because we want to decompose first.
+#    The recursive calls will eventually hit leaf distributions and dispatch to mean_ef_impl.
 function mean(expectation::ClosedWilliamsProduct, p::Logpdf{<:ProductOf}, q::ExponentialFamilyDistribution)
     return mean(expectation, Logpdf(p.dist.left), q) .+ mean(expectation, Logpdf(p.dist.right), q)
+end
+
+function mean(expectation::ClosedFormExpectation, p::Logpdf{<:ProductOf}, q::ExponentialFamilyDistribution)
+    return mean(expectation, Logpdf(p.dist.left), q) + mean(expectation, Logpdf(p.dist.right), q)
 end

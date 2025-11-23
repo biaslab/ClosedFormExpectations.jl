@@ -1,7 +1,8 @@
 using StaticArrays
 import SpecialFunctions: trigamma, digamma, polygamma
-import Distributions: Gamma, shape, rate
+import Distributions: Gamma, shape, rate, scale
 import LogExpFunctions: xlogx
+import ExponentialFamily: NormalMeanPrecision, NormalMeanVariance, mean_precision, mean_var, UnivariateNormalDistributionsFamily
 
 function mean(::ClosedFormExpectation, ::typeof(log), q::Gamma)
     return digamma(shape(q)) + log(scale(q))
@@ -87,3 +88,38 @@ function mean(::ClosedFormExpectation, p::Logpdf{Gamma{T}}, q::Gamma{S}) where {
     return -loggamma(α_p) - α_p * log(θ_p) + (α_p - 1) * E_log_x - E_x / θ_p
 end
 
+function mean(::ClosedFormExpectation, p::Logpdf{<:UnivariateNormalDistributionsFamily}, q::Gamma)
+    # E_q [log N(x | λ, v)]
+    # We use mean_var to support any UnivariateNormalDistributionsFamily.
+    # mean_var returns (μ, v) of the distribution.
+    # In this context, the distribution parameter `μ` corresponds to `x` in the derivation,
+    # and the random variable `λ` (from q) corresponds to the mean of the Normal.
+    # log N(x | λ, v) = -0.5 log(2πv) - (λ - x)^2 / 2v
+    
+    x_val, v_val = mean_var(p.dist)
+    α, θ = shape(q), scale(q)
+    
+    # E[λ]
+    E_lambda = α * θ
+    # E[λ^2] = Var(λ) + E[λ]^2 = α*θ^2 + (α*θ)^2 = α*θ^2(1+α)
+    E_lambda2 = α * θ^2 * (1 + α)
+    
+    term1 = -0.5 * log(2 * pi * v_val)
+    term2 = -1 / (2 * v_val) * (E_lambda2 - 2 * x_val * E_lambda + x_val^2)
+    
+    return term1 + term2
+end
+
+function mean(::ClosedWilliamsProduct, p::Logpdf{<:UnivariateNormalDistributionsFamily}, q::Gamma)
+    x_val, v_val = mean_var(p.dist)
+    α, θ = shape(q), scale(q)
+    
+    # Gradients derived in feature request
+    # ∇_α E = -1/2v * (θ^2(1+2α) - 2xθ)
+    grad_alpha = -1 / (2 * v_val) * (θ^2 * (1 + 2 * α) - 2 * x_val * θ)
+    
+    # ∇_θ E = -1/2v * (2αθ(1+α) - 2xα)
+    grad_theta = -1 / (2 * v_val) * (2 * α * θ * (1 + α) - 2 * x_val * α)
+    
+    return @SVector [grad_alpha, grad_theta]
+end

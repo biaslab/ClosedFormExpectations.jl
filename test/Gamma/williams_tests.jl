@@ -46,3 +46,24 @@ end
         central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(Gamma(α_p, θ_p)), Gamma(α_q, θ_q), score)
     end
 end
+
+@testitem "mean(::ClosedFormExpectation, p::Logpdf{<:UnivariateNormalDistributionsFamily}, q::Gamma)" begin
+    using Distributions
+    using ClosedFormExpectations
+    using StableRNGs
+    using SpecialFunctions
+    using ExponentialFamily
+    include("gamma_utils.jl")
+    rng = StableRNG(123)
+    @testset "Logpdf{Gamma} on Gamma" begin
+        for _ in 1:10
+            p_dist = Normal(10rand(rng), 10rand(rng))
+            q = Gamma(10rand(rng), 10rand(rng))
+            central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(p_dist), q, score)
+            for parametrization in (NormalMeanVariance, NormalMeanPrecision, NormalWeightedMeanPrecision)
+                p_params = convert(parametrization, p_dist)
+                central_limit_theorem_test(ClosedWilliamsProduct(), Logpdf(p_params), q, score)
+            end
+        end 
+    end
+end
