@@ -1,9 +1,10 @@
 name = "ClosedFormExpectations"
 uuid = "70ff922c-62d4-418d-abfc-e284e489b734"
 authors = ["Mykola Lukashchuk <nikola.lukashuk@gmail.com> and contributors"]
-version = "0.2.1"
+version = "0.3.0"
 
 [deps]
+BayesBase = "b4ee3484-f114-42fe-b91c-797d54a0c67e"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 ExponentialFamily = "62312e5e-252a-4322-ace9-a5f4bf9b357b"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -13,10 +14,11 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
 Aqua = "0.8.4"
+BayesBase = "1.5.8"
 CpuId = "0.3.1"
 Distributions = "0.25"
-LinearAlgebra = "^1.9"
 ExponentialFamily = "2.1.2"
+LinearAlgebra = "^1.9"
 LogExpFunctions = "0.3"
 ReTestItems = "1.23.1"
 SpecialFunctions = "2.3.1"
