@@ -131,3 +131,21 @@ end
         end 
     end
 end
+
+@testitem "Gamma Cross Entropy supports GammaDistributionsFamily" begin
+    using Distributions
+    using ClosedFormExpectations
+    using StableRNGs
+    using ExponentialFamily: GammaShapeRate
+
+    rng = StableRNG(123)
+    for _ in 1:10
+        p_dist = Gamma(10rand(rng), 10rand(rng))
+        p_ef = convert(GammaShapeRate, p_dist)
+        q = Gamma(10rand(rng), 10rand(rng))
+
+        expected = mean(ClosedFormExpectation(), Logpdf(p_dist), q)
+        actual = mean(ClosedFormExpectation(), Logpdf(p_ef), q)
+        @test isapprox(actual, expected; rtol = 1e-10, atol = 1e-12)
+    end
+end

@@ -47,6 +47,22 @@ end
     end
 end
 
+@testitem "mean(::ClosedWilliamsProduct, ::Logpdf(GammaDistributionsFamily), ::Gamma)" begin
+    include("gamma_utils.jl")
+    using ExponentialFamily: GammaShapeRate
+
+    rng = StableRNG(123)
+    for _ in 1:10
+        p_dist = Gamma(10rand(rng), 10rand(rng))
+        p_ef = convert(GammaShapeRate, p_dist)
+        q = Gamma(10rand(rng), 10rand(rng))
+
+        expected = mean(ClosedWilliamsProduct(), Logpdf(p_dist), q)
+        actual = mean(ClosedWilliamsProduct(), Logpdf(p_ef), q)
+        @test isapprox.(actual, expected; rtol = 1e-10, atol = 1e-12) |> all
+    end
+end
+
 @testitem "mean(::ClosedFormExpectation, p::Logpdf{<:UnivariateNormalDistributionsFamily}, q::Gamma)" begin
     using Distributions
     using ClosedFormExpectations
