@@ -2,7 +2,7 @@ using StaticArrays
 import SpecialFunctions: trigamma, digamma, polygamma
 import Distributions: Gamma, shape, rate, scale
 import LogExpFunctions: xlogx
-import ExponentialFamily: NormalMeanPrecision, NormalMeanVariance, mean_precision, mean_var, UnivariateNormalDistributionsFamily
+import ExponentialFamily: NormalMeanPrecision, NormalMeanVariance, mean_precision, mean_var, UnivariateNormalDistributionsFamily, GammaDistributionsFamily
 
 function mean(::ClosedFormExpectation, ::typeof(log), q::Gamma)
     return digamma(shape(q)) + log(scale(q))
@@ -70,7 +70,7 @@ function mean(strategy::ClosedWilliamsProduct, f::Logpdf{LogNormal{T}}, q::Gamma
     return E_logexplogsquare - E_logx
 end
 
-function mean(::ClosedWilliamsProduct, p::Logpdf{Gamma{T}}, q::Gamma{S}) where {T,S}
+function mean(::ClosedWilliamsProduct, p::Logpdf{<:GammaDistributionsFamily}, q::Gamma)
     α_p, θ_p = shape(p.dist), scale(p.dist)
     α_q, θ_q = shape(q), scale(q)
     # ∇_{α_q} E_q[log p]
@@ -80,7 +80,7 @@ function mean(::ClosedWilliamsProduct, p::Logpdf{Gamma{T}}, q::Gamma{S}) where {
     return @SVector [grad_shape, grad_scale]
 end
 
-function mean(::ClosedFormExpectation, p::Logpdf{Gamma{T}}, q::Gamma{S}) where {T,S}
+function mean(::ClosedFormExpectation, p::Logpdf{<:GammaDistributionsFamily}, q::Gamma)
     α_p, θ_p = shape(p.dist), scale(p.dist)
     α_q, θ_q = shape(q), scale(q)
     E_log_x = digamma(α_q) + log(θ_q)
