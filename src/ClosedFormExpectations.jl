@@ -21,7 +21,13 @@ Compute the E_q[f(x)] where q is a distribution and f is a function.
 """
 function mean(::ClosedFormExpectation, ::Nothing, ::Nothing) end
 
-struct ClosedWilliamsProduct end 
+"""
+    ClosedWilliamsProduct
+
+A strategy for computing the Williams' product (score function estimator gradient):
+``\\mathbb{E}_q[f(x) \\nabla_\\theta \\log q(x; \\theta)]``.
+"""
+struct ClosedWilliamsProduct end
 
 """
     mean(::ClosedWilliamsProduct, f, q)

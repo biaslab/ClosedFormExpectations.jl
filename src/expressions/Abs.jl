@@ -1,11 +1,10 @@
 export Abs
 
 """
-    Abs{T}
+    Abs
 
-The absolute value of a number: |x|.
+Expression type representing the absolute value function ``|x|``.
 """
-
 struct Abs <: Expression end
 
 function (f::Abs)(x)
