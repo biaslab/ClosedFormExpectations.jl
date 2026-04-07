@@ -38,11 +38,11 @@ function central_limit_theorem_test(::ClosedFormExpectation, f, q, N = 10^6)
     @test sigma_rule(expectation, mean(transformed_samples), std(transformed_samples), N)
 end
 
-function central_limit_theorem_test(::ClosedWilliamsProduct, f, q, score, N = 10^6)
+function central_limit_theorem_test(strategy::ClosedWilliamsProduct, f, q, score, N = 10^6)
     rng = StableRNG(123)
     samples = rand(rng, q, N)
     transformed_samples = map(x -> score(q, x)*f(x), samples)
-    expectation = mean(ClosedWilliamsProduct(), f, q)
+    expectation = mean(strategy, f, q)
     for (expectation, mean, std) in zip(expectation, mean(transformed_samples), std(transformed_samples))
         @test sigma_rule(expectation, mean, std, N)
     end

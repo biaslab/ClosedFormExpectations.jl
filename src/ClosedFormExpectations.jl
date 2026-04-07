@@ -22,12 +22,60 @@ Compute the E_q[f(x)] where q is a distribution and f is a function.
 function mean(::ClosedFormExpectation, ::Nothing, ::Nothing) end
 
 """
-    ClosedWilliamsProduct
+    EnzymeForward
+
+Selects Enzyme.jl forward-mode AD for `EnzymeBackend`.
+"""
+struct EnzymeForward end
+
+"""
+    EnzymeReverse
+
+Selects Enzyme.jl reverse-mode AD for `EnzymeBackend`. This is the default mode.
+"""
+struct EnzymeReverse end
+
+export EnzymeForward, EnzymeReverse
+
+"""
+    EnzymeBackend{Mode}
+
+Backend for `ClosedWilliamsProduct` that uses Enzyme.jl automatic differentiation
+to compute ``\\nabla_\\eta \\mathbb{E}_q[f(x)]``, exploiting the identity
+
+```math
+\\mathbb{E}_q[f(x)\\,\\nabla_\\eta \\log q(x;\\eta)] = \\nabla_\\eta \\mathbb{E}_q[f(x)]
+```
+
+Requires Enzyme.jl to be loaded. Works for any `ExponentialFamilyDistribution{T}` where
+a `ClosedFormExpectation` is already defined.
+
+The `Mode` type parameter selects the AD mode:
+- `EnzymeBackend()` or `EnzymeBackend(EnzymeReverse())` — reverse-mode (default, efficient for many outputs).
+- `EnzymeBackend(EnzymeForward())` — forward-mode (efficient for few inputs).
+"""
+struct EnzymeBackend{Mode}
+    mode::Mode
+end
+EnzymeBackend() = EnzymeBackend(EnzymeReverse())
+
+export EnzymeBackend
+
+"""
+    ClosedWilliamsProduct{B}
 
 A strategy for computing the Williams' product (score function estimator gradient):
 ``\\mathbb{E}_q[f(x) \\nabla_\\theta \\log q(x; \\theta)]``.
+
+The optional `backend` field selects the differentiation backend:
+- `ClosedWilliamsProduct()` — default, uses hand-coded implementations.
+- `ClosedWilliamsProduct(EnzymeBackend())` — Enzyme reverse-mode AD (requires `using Enzyme`).
+- `ClosedWilliamsProduct(EnzymeBackend(EnzymeForward()))` — Enzyme forward-mode AD.
 """
-struct ClosedWilliamsProduct end
+struct ClosedWilliamsProduct{B}
+    backend::B
+end
+ClosedWilliamsProduct() = ClosedWilliamsProduct(nothing)
 
 """
     mean(::ClosedWilliamsProduct, f, q)
