@@ -85,6 +85,18 @@ Returns a 2-element `SVector` with gradients ``[\nabla_\mu, \nabla_\sigma]``.
 | `Logpdf(Laplace(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Lap}}(x) \cdot \nabla_{(\mu,\sigma)} \log q(x)]`` |
 | `Logpdf(LogGamma(α, β))` | ``\mathbb{E}_q[\log p_{\mathrm{LG}}(x) \cdot \nabla_{(\mu,\sigma)} \log q(x)]`` |
 
+## [LogNormal Distribution](@id lib-lognormal)
+
+Distribution ``q \sim \mathrm{LogNormal}(\mu, \sigma)``, where ``\mu`` is the log-mean and ``\sigma`` is the log-standard-deviation.
+
+### ClosedFormExpectation
+
+| Function `f` | Expression |
+|:-------------|:-----------|
+| `Logpdf(Gamma(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Gamma}}(x)]`` |
+| `Logpdf(Normal(...))` | ``\mathbb{E}_q[\log p_{\mathcal{N}}(x)]`` |
+| `Logpdf(LogNormal(μ, σ))` | ``\mathbb{E}_q[\log p_{\mathrm{LogN}}(x)]`` |
+
 ## [Multivariate Normal Distribution](@id lib-mvnormal)
 
 Distribution ``q \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})``.
