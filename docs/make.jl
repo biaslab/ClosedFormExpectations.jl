@@ -14,6 +14,9 @@ makedocs(
             "Supported Pairs"      => "lib/supported-pairs.md",
             "Custom Distributions" => "lib/distributions.md",
         ],
+        "Extensions" => [
+            "Enzyme" => "extensions/enzyme.md",
+        ],
         "Extra" => [
             "Contributing" => "extra/contributing.md",
         ]

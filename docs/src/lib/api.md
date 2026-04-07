@@ -62,10 +62,14 @@ mean(ClosedFormExpectation(), Normal(0, 1), q)
 
 The package integrates with [ExponentialFamily.jl](https://github.com/ReactiveBayes/ExponentialFamily.jl) to support `ExponentialFamilyDistribution` objects. When an `ExponentialFamilyDistribution` is passed as the distribution `q`, it is automatically converted to its standard `Distributions.jl` representation for `ClosedFormExpectation`, and the appropriate Jacobian transformation is applied for `ClosedWilliamsProduct`.
 
-Supported ExponentialFamily parametrizations:
+Supported ExponentialFamily parametrizations with hand-coded Jacobians:
 - `NormalMeanVariance` (with Jacobian adjustment for Williams' product)
 - `ExponentialFamilyDistribution{NormalMeanVariance}` (with natural parameter Jacobian)
 - `ExponentialFamilyDistribution{Gamma}` (with natural parameter Jacobian)
+
+For any other `ExponentialFamilyDistribution{T}` family where a `ClosedFormExpectation` exists
+but no hand-coded `ClosedWilliamsProduct` is available, load Enzyme.jl and use the
+[Enzyme extension](@ref ext-enzyme) to compute the Williams' product automatically via AD.
 
 ## [ProductOf Support](@id lib-productof)
 

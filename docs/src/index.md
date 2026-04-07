@@ -52,6 +52,7 @@ Pages = [
   "lib/expressions.md",
   "lib/supported-pairs.md",
   "lib/distributions.md",
+  "extensions/enzyme.md",
   "extra/contributing.md",
 ]
 Depth = 2

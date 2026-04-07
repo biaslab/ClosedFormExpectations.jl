@@ -19,7 +19,7 @@ import ExponentialFamily: ExponentialFamilyDistribution, getnaturalparameters
 # J = [1      0
 #      0  1/η₂²]
 
-function mean_ef_impl(expectation::ClosedWilliamsProduct, f, q::ExponentialFamilyDistribution{T}) where {T <: ExponentialFamily.Gamma}
+function mean_ef_impl(expectation::ClosedWilliamsProduct{Nothing}, f, q::ExponentialFamilyDistribution{T}) where {T <: ExponentialFamily.Gamma}
     η = getnaturalparameters(q)
     # η[1] is shape-related, η[2] is scale-related
     
