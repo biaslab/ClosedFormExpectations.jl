@@ -30,6 +30,36 @@ logpdf(d, 0.5)
 mean(ClosedFormExpectation(), Logpdf(LogGamma(2.0, 3.0)), Normal(0, 1))
 ```
 
+## [ReLU Factor Messages](@id lib-relu-messages)
+
+These types represent the exact factor-to-variable messages of a hard ReLU factor node
+``y = \max(0, x)``, given Gaussian incoming messages on either side.
+
+```@docs
+ReLUForwardMessage
+ReLUBackwardMessage
+```
+
+### Usage
+
+```julia
+using ClosedFormExpectations, Distributions, BayesBase
+
+# Forward message: given Normal incoming on x, evaluate log density at y > 0
+d_fwd = ReLUForwardMessage(1.0, 2.0)   # m_x = 1.0, v_x = 2.0
+logpdf(d_fwd, 0.5)                     # log 𝒩(0.5; 1.0, 2.0)
+logpdf(d_fwd, -0.1)                    # -Inf (no support for y ≤ 0)
+
+# Backward message: given Normal incoming on y, evaluate log density at any x
+d_bwd = ReLUBackwardMessage(1.0, 2.0)  # m_y = 1.0, v_y = 2.0
+logpdf(d_bwd, 0.5)                     # log 𝒩(0.5; 1.0, 2.0)
+logpdf(d_bwd, -0.5)                    # log 𝒩(0.0; 1.0, 2.0)  (constant for x ≤ 0)
+
+# Closed-form expectations
+mean(ClosedFormExpectation(), Logpdf(ReLUForwardMessage(1.0, 2.0)), Gamma(3.0, 1.0))
+mean(ClosedFormExpectation(), Logpdf(ReLUBackwardMessage(1.0, 2.0)), Normal(0.5, 1.0))
+```
+
 ## [LinearLogGamma](@id lib-linearloggamma)
 
 ```@docs
