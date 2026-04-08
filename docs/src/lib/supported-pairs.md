@@ -44,6 +44,17 @@ Distribution ``q \sim \mathrm{Gamma}(\alpha, \theta)``, where ``\alpha`` is the 
 | `Logpdf(LogNormal(μ, σ))` | ``\mathbb{E}_q[\log p_{\mathrm{LogN}}(x)]`` |
 | `Logpdf(Gamma(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Gamma}}(x)]`` |
 | `Logpdf(Normal(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Normal}}(x)]`` |
+| `Logpdf(ReLUForwardMessage(m_x, v_x))` | ``\mathbb{E}_q[\log m_{f \to y}(y)]``, ``m_{f \to y} = \Phi(-\alpha_x)\delta(y) + \mathbf{1}_{y>0}\mathcal{N}(y;\,m_x,v_x)`` |
+| `Logpdf(ReLUBackwardMessage(m_y, v_y))` | ``\mathbb{E}_q[\log m_{f \to x}(x)]``, ``m_{f \to x}(x) \propto \mathcal{N}(\max(0,x);\,m_y,v_y)`` |
+
+!!! note "Why the forward message collapses to a Gaussian integral here"
+    The forward message ``m_{f \to y}`` is a **spike-slab** distribution, not a Gaussian.
+    Its log-density is ``\log\mathcal{N}(y;\,m_x,v_x)`` for ``y > 0`` and ``-\infty`` for ``y \leq 0``.
+    Because Gamma (and LogNormal) have support on ``(0,\infty)``, the atom at ``y=0`` carries
+    zero mass under ``q``, so the expectation equals ``\mathbb{E}_q[\log\mathcal{N}(y;\,m_x,v_x)]``
+    numerically — but this is a property of the support of ``q``, not of the message itself.
+    For ``q = \mathcal{N}(\mu,\sigma^2)`` the atom contributes ``-\infty`` and the expectation
+    is undefined; see the Normal section for the backward message instead.
 
 ### ClosedWilliamsProduct
 
@@ -73,6 +84,7 @@ Distribution ``q \sim \mathcal{N}(\mu, \sigma^2)``.
 | `Logpdf(Laplace(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Lap}}(x)]`` |
 | `Abs()` | ``\mathbb{E}_q[\lvert x \rvert]`` |
 | `Logpdf(LogGamma(α, β))` | ``\mathbb{E}_q[\log p_{\mathrm{LG}}(x)]`` |
+| `Logpdf(ReLUBackwardMessage(m_y, v_y))` | ``\mathbb{E}_q[\log m_{f \to x}(x)]``, ``m_{f \to x}(x) \propto \mathcal{N}(\max(0,x);\,m_y,v_y)`` |
 
 ### ClosedWilliamsProduct
 
@@ -96,6 +108,8 @@ Distribution ``q \sim \mathrm{LogNormal}(\mu, \sigma)``, where ``\mu`` is the lo
 | `Logpdf(Gamma(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Gamma}}(x)]`` |
 | `Logpdf(Normal(...))` | ``\mathbb{E}_q[\log p_{\mathcal{N}}(x)]`` |
 | `Logpdf(LogNormal(μ, σ))` | ``\mathbb{E}_q[\log p_{\mathrm{LogN}}(x)]`` |
+| `Logpdf(ReLUForwardMessage(m_x, v_x))` | ``\mathbb{E}_q[\log m_{f \to y}(y)]``, ``m_{f \to y} = \Phi(-\alpha_x)\delta(y) + \mathbf{1}_{y>0}\mathcal{N}(y;\,m_x,v_x)`` |
+| `Logpdf(ReLUBackwardMessage(m_y, v_y))` | ``\mathbb{E}_q[\log m_{f \to x}(x)]``, ``m_{f \to x}(x) \propto \mathcal{N}(\max(0,x);\,m_y,v_y)`` |
 
 ## [Multivariate Normal Distribution](@id lib-mvnormal)
 
