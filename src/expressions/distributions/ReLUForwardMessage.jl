@@ -27,6 +27,8 @@ end
 ReLUForwardMessage(m_x::Real, v_x::Real) = ReLUForwardMessage(promote(m_x, v_x)...)
 
 function BayesBase.logpdf(d::ReLUForwardMessage, y::Real)  # extend BayesBase.logpdf
-    y > zero(y) || return convert(float(typeof(y)), -Inf)
-    return -1 / 2 * log(2π * d.v_x) - (y - d.m_x)^2 / (2 * d.v_x)
+    if y > zero(y)
+        return -1 / 2 * log(2π * d.v_x) - (y - d.m_x)^2 / (2 * d.v_x)
+    end
+    return convert(float(typeof(y)), -Inf)
 end
