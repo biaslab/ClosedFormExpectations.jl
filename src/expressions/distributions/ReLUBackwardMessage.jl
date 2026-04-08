@@ -1,5 +1,7 @@
 export ReLUBackwardMessage
 
+import Distributions: ContinuousUnivariateDistribution
+
 """
     ReLUBackwardMessage{T}
 
@@ -20,7 +22,7 @@ This is an unnormalized density on ``\\mathbb{R}``: constant on the negative hal
 Gaussian-shaped on the positive half-line.  The `logpdf` method returns
 ``\\log\\mathcal{N}(\\max(0,x);\\,m_y,\\,v_y)``.
 """
-struct ReLUBackwardMessage{T<:Real}
+struct ReLUBackwardMessage{T<:Real} <: ContinuousUnivariateDistribution
     m_y::T
     v_y::T
 end

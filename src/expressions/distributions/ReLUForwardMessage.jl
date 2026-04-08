@@ -1,5 +1,7 @@
 export ReLUForwardMessage
 
+import Distributions: ContinuousUnivariateDistribution
+
 """
     ReLUForwardMessage{T}
 
@@ -17,7 +19,7 @@ The `logpdf` method returns the log density of the **continuous component** (def
 For ``y \\leq 0`` it returns ``-\\infty``.  The atom weight at ``y = 0`` is
 ``\\Phi(-m_x / \\sqrt{v_x})``.
 """
-struct ReLUForwardMessage{T<:Real}
+struct ReLUForwardMessage{T<:Real} <: ContinuousUnivariateDistribution
     m_x::T
     v_x::T
 end

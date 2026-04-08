@@ -114,8 +114,9 @@ include("expressions/LinearLogGamma.jl")
 
 # rules for computing expectations
 include("Exponential/Exponential.jl")
-# normal 
+# normal
 include("Normal/expectation.jl")
+include("Normal/relu_messages.jl")
 include("Normal/williams/normal.jl")
 include("Normal/williams/normal_mean_variance.jl")
 include("Normal/williams/ef_parametrization.jl")
@@ -124,9 +125,11 @@ include("MvNormal/expectation.jl")
 
 # gamma
 include("Gamma/Gamma.jl")
+include("Gamma/relu_messages.jl")
 
 # lognormal
 include("LogNormal/expectation.jl")
+include("LogNormal/relu_messages.jl")
 include("Gamma/williams_gamma_ef.jl")
 
 # exponetial family distribution interface

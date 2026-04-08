@@ -44,6 +44,8 @@ Distribution ``q \sim \mathrm{Gamma}(\alpha, \theta)``, where ``\alpha`` is the 
 | `Logpdf(LogNormal(μ, σ))` | ``\mathbb{E}_q[\log p_{\mathrm{LogN}}(x)]`` |
 | `Logpdf(Gamma(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Gamma}}(x)]`` |
 | `Logpdf(Normal(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Normal}}(x)]`` |
+| `Logpdf(ReLUForwardMessage(m_x, v_x))` | ``\mathbb{E}_q[\log \mathcal{N}(x;\,m_x,v_x)]`` |
+| `Logpdf(ReLUBackwardMessage(m_y, v_y))` | ``\mathbb{E}_q[\log \mathcal{N}(\max(0,x);\,m_y,v_y)]`` |
 
 ### ClosedWilliamsProduct
 
@@ -73,6 +75,7 @@ Distribution ``q \sim \mathcal{N}(\mu, \sigma^2)``.
 | `Logpdf(Laplace(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Lap}}(x)]`` |
 | `Abs()` | ``\mathbb{E}_q[\lvert x \rvert]`` |
 | `Logpdf(LogGamma(α, β))` | ``\mathbb{E}_q[\log p_{\mathrm{LG}}(x)]`` |
+| `Logpdf(ReLUBackwardMessage(m_y, v_y))` | ``\mathbb{E}_q[\log \mathcal{N}(\max(0,x);\,m_y,v_y)]`` |
 
 ### ClosedWilliamsProduct
 
@@ -96,6 +99,8 @@ Distribution ``q \sim \mathrm{LogNormal}(\mu, \sigma)``, where ``\mu`` is the lo
 | `Logpdf(Gamma(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Gamma}}(x)]`` |
 | `Logpdf(Normal(...))` | ``\mathbb{E}_q[\log p_{\mathcal{N}}(x)]`` |
 | `Logpdf(LogNormal(μ, σ))` | ``\mathbb{E}_q[\log p_{\mathrm{LogN}}(x)]`` |
+| `Logpdf(ReLUForwardMessage(m_x, v_x))` | ``\mathbb{E}_q[\log \mathcal{N}(x;\,m_x,v_x)]`` |
+| `Logpdf(ReLUBackwardMessage(m_y, v_y))` | ``\mathbb{E}_q[\log \mathcal{N}(\max(0,x);\,m_y,v_y)]`` |
 
 ## [Multivariate Normal Distribution](@id lib-mvnormal)
 
