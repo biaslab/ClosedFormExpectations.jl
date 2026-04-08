@@ -3,6 +3,7 @@ module ClosedFormExpectations
 export mean
 
 import Base: log
+import BayesBase
 import Distributions: mean
 
 export ClosedFormExpectation
@@ -105,6 +106,8 @@ include("expressions/Abs.jl")
 
 # extra distributions
 include("expressions/distributions/LogGamma.jl")
+include("expressions/distributions/ReLUForwardMessage.jl")
+include("expressions/distributions/ReLUBackwardMessage.jl")
 
 # extra multivariate distributions
 include("expressions/LinearLogGamma.jl")
