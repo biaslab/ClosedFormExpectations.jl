@@ -2,6 +2,8 @@
 
 [![Build Status](https://github.com/biaslab/ClosedFormExpectations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/biaslab/ClosedFormExpectations.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/biaslab/ClosedFormExpectations.jl/graph/badge.svg?token=2syiPm7b6L)](https://codecov.io/gh/biaslab/ClosedFormExpectations.jl)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://biaslab.github.io/ClosedFormExpectations.jl/dev/)
+
 
 `ClosedFormExpectations.jl` is a Julia package that provides closed-form expressions for computing the expectation of a function (e.g pdfs) with respect to another distribution, i.e., $E_q[f(x)].$
 
