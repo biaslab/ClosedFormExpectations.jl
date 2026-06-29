@@ -25,7 +25,7 @@ struct LogGamma{T<:Real} <: ContinuousUnivariateDistribution
 end
 
 function LogGamma(α::T, β::T; check_args=true) where {T<:Real}
-    @check_args LogGamma (α > zero(α) && β > zero(β))
+    @check_args LogGamma (α, α > zero(α)) (β, β > zero(β))
     return LogGamma{T}(α, β)
 end
 
