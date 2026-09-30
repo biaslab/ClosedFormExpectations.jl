@@ -113,6 +113,8 @@ include("expressions/distributions/ReLUBackwardMessage.jl")
 include("expressions/LinearLogGamma.jl")
 
 # rules for computing expectations
+include("Categorical/expectation.jl")
+include("Categorical/williams_ef.jl")
 include("Exponential/Exponential.jl")
 # normal
 include("Normal/expectation.jl")

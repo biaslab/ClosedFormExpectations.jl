@@ -14,6 +14,7 @@ ClosedWilliamsProduct
 
 ```@docs
 mean(::ClosedFormExpectation, ::Nothing, ::Nothing)
+mean(::ClosedFormExpectation, ::Any, ::ClosedFormExpectations.Categorical)
 mean(::ClosedWilliamsProduct, ::Nothing, ::Nothing)
 ```
 
@@ -41,7 +42,7 @@ mean(ClosedWilliamsProduct(), f, q)
 
 **Return values:**
 - `ClosedFormExpectation` returns a scalar (or vector for multivariate distributions).
-- `ClosedWilliamsProduct` returns a static vector (gradient with respect to distribution parameters).
+- `ClosedWilliamsProduct` returns a gradient vector with respect to the supported parametrization. For Categorical EF distributions, this is the full length-K vector in softmax logits.
 
 ## [Logpdf Wrapper](@id lib-logpdf)
 
@@ -60,12 +61,13 @@ mean(ClosedFormExpectation(), Normal(0, 1), q)
 
 ## [ExponentialFamily Support](@id lib-ef-support)
 
-The package integrates with [ExponentialFamily.jl](https://github.com/ReactiveBayes/ExponentialFamily.jl) to support `ExponentialFamilyDistribution` objects. When an `ExponentialFamilyDistribution` is passed as the distribution `q`, it is automatically converted to its standard `Distributions.jl` representation for `ClosedFormExpectation`, and the appropriate Jacobian transformation is applied for `ClosedWilliamsProduct`.
+The package integrates with [ExponentialFamily.jl](https://github.com/ReactiveBayes/ExponentialFamily.jl) to support `ExponentialFamilyDistribution` objects. For `ClosedFormExpectation`, the EF distribution `q` is converted to its standard `Distributions.jl` representation. For `ClosedWilliamsProduct`, the result is the score gradient with respect to the EF natural parameters.
 
-Supported ExponentialFamily parametrizations with hand-coded Jacobians:
+Supported ExponentialFamily parametrizations with hand-coded Williams products:
 - `NormalMeanVariance` (with Jacobian adjustment for Williams' product)
 - `ExponentialFamilyDistribution{NormalMeanVariance}` (with natural parameter Jacobian)
 - `ExponentialFamilyDistribution{Gamma}` (with natural parameter Jacobian)
+- `ExponentialFamilyDistribution{Categorical}` (full softmax-logit score gradient; see [Categorical Distribution](@ref lib-categorical))
 
 For any other `ExponentialFamilyDistribution{T}` family where a `ClosedFormExpectation` exists
 but no hand-coded `ClosedWilliamsProduct` is available, load Enzyme.jl and use the

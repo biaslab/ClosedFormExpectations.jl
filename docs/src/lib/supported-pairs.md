@@ -2,6 +2,50 @@
 
 This page lists all supported `(distribution, function)` pairs for which closed-form expectations and Williams' products are implemented.
 
+## [Categorical Distribution](@id lib-categorical)
+
+### ClosedFormExpectation
+
+For `q = Categorical(p)`, `ClosedFormExpectation` accepts any callable scalar score `f`
+and computes the exact finite sum:
+
+```math
+\mathbb{E}_q[f(k)] = \sum_{k:p_k>0} p_k f(k).
+```
+
+Categories with zero probability are skipped without evaluating `f(k)`, so scores
+need only be defined at categories with positive probability. Targets may also be
+`Logpdf` wrappers (including noncategorical distributions), raw distributions, or
+`Base.Fix1(logpdf, target)`. Log-density products retain their additive decomposition.
+
+```julia
+q = Categorical([0.2, 0.3, 0.5])
+scores = [1, 2, 4]
+mean(ClosedFormExpectation(), k -> scores[k], q) # ≈ 2.8
+```
+
+### ClosedWilliamsProduct
+
+For `ef = convert(ExponentialFamilyDistribution, q)`, the default
+`ClosedWilliamsProduct()` returns the **full length-K score gradient in softmax
+logits**, with ``p = \operatorname{softmax}(\eta)`` and ``\mu = \mathbb{E}_q[f]``:
+
+```math
+g_k = p_k(f(k) - \mu).
+```
+
+Zero-probability categories are skipped without evaluating `f(k)` and receive
+zero entries. The reference category's component is retained. No inverse Fisher
+is applied; coordinate reduction and natural-gradient updates belong to the caller.
+This method is defined only for the EF parametrization, not for probability
+parameters on a plain `Categorical`. It accepts arbitrary callable scores, including
+`Logpdf` targets, and uses the existing raw-distribution and product bridges.
+
+```julia
+ef = convert(ExponentialFamilyDistribution, q)
+mean(ClosedWilliamsProduct(), k -> scores[k], ef) # ≈ [-0.36, -0.24, 0.6]
+```
+
 ## [Exponential Distribution](@id lib-exponential)
 
 Distribution ``q \sim \mathrm{Exponential}(\lambda)``, where ``\lambda`` is the scale (mean).
@@ -127,15 +171,16 @@ Distribution ``q \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})``.
 
 ## [ExponentialFamily Parametrizations](@id lib-ef-pairs)
 
-For `ClosedWilliamsProduct`, the following ExponentialFamily parametrizations are supported with automatic Jacobian transformations:
+For `ClosedWilliamsProduct`, the following ExponentialFamily parametrizations are supported:
 
 | Distribution `q` | Gradient w.r.t. | Notes |
 |:------------------|:----------------|:------|
 | `NormalMeanVariance(μ, v)` | ``[\nabla_\mu, \nabla_v]`` | Jacobian from ``(\mu, \sigma) \to (\mu, v)`` |
 | `ExponentialFamilyDistribution{NormalMeanVariance}` | ``[\nabla_{\eta_1}, \nabla_{\eta_2}]`` | Natural parameters |
 | `ExponentialFamilyDistribution{Gamma}` | ``[\nabla_{\eta_1}, \nabla_{\eta_2}]`` | Natural parameters |
+| `ExponentialFamilyDistribution{Categorical}` | ``[\nabla_{\eta_1}, \ldots, \nabla_{\eta_K}]`` | Full softmax-logit score gradient |
 
-These work with **any** function `f` that is supported for the corresponding base distribution (`Normal` or `Gamma`).
+The Normal and Gamma methods work with **any** function `f` supported for the corresponding base distribution. The Categorical method enumerates arbitrary callable scores over categories with positive probability.
 
 ## [ProductOf Distributions](@id lib-productof-pairs)
 
