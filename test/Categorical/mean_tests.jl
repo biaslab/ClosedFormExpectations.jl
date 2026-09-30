@@ -1,3 +1,23 @@
+@testitem "Categorical expectation Monte Carlo" begin
+    using ClosedFormExpectations
+    using Distributions
+    include("../test_utils.jl")
+
+    rng = StableRNG(123)
+    for _ in 1:10
+        K = rand(rng, 2:5)
+        weights = rand(rng, K) .+ 0.1
+        q = Categorical(weights ./ sum(weights))
+        scores = randn(rng, K)
+        target_weights = rand(rng, K) .+ 0.1
+        target = Categorical(target_weights ./ sum(target_weights))
+        normal = Normal(randn(rng), rand(rng) + 0.5)
+        for f in (k -> scores[k], Logpdf(target), Logpdf(normal))
+            central_limit_theorem_test(ClosedFormExpectation(), f, q)
+        end
+    end
+end
+
 @testitem "Categorical exact expectation" begin
     using ClosedFormExpectations
     using Distributions
