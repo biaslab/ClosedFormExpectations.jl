@@ -35,9 +35,7 @@ g_k = p_k(f(k) - \mu).
 ```
 
 Zero-probability categories are skipped without evaluating `f(k)` and receive
-zero entries. The reference category's component is retained. No inverse Fisher
-is applied; coordinate reduction and natural-gradient updates belong to the caller.
-This method is defined only for the EF parametrization, not for probability
+zero entries. The reference category's component is retained. This method is defined only for the EF parametrization, not for probability
 parameters on a plain `Categorical`. It accepts arbitrary callable scores, including
 `Logpdf` targets, and uses the existing raw-distribution and product bridges.
 
