@@ -2,6 +2,26 @@
 
 This page lists all supported `(distribution, function)` pairs for which closed-form expectations and Williams' products are implemented.
 
+## [Categorical Distribution](@id lib-categorical)
+
+For `q = Categorical(p)`, `ClosedFormExpectation` accepts any callable scalar score `f`
+and computes the exact finite sum:
+
+```math
+\mathbb{E}_q[f(k)] = \sum_{k:p_k>0} p_k f(k).
+```
+
+Categories with zero probability are skipped without evaluating `f(k)`, so scores
+need only be defined at categories with positive probability. Targets may also be
+`Logpdf` wrappers (including noncategorical distributions), raw distributions, or
+`Base.Fix1(logpdf, target)`. Log-density products retain their additive decomposition.
+
+```julia
+q = Categorical([0.2, 0.3, 0.5])
+scores = [1, 2, 4]
+mean(ClosedFormExpectation(), k -> scores[k], q) # ≈ 2.8
+```
+
 ## [Exponential Distribution](@id lib-exponential)
 
 Distribution ``q \sim \mathrm{Exponential}(\lambda)``, where ``\lambda`` is the scale (mean).
