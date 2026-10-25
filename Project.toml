@@ -1,7 +1,7 @@
 name = "ClosedFormExpectations"
 uuid = "70ff922c-62d4-418d-abfc-e284e489b734"
 authors = ["Mykola Lukashchuk <nikola.lukashuk@gmail.com> and contributors"]
-version = "0.4.2"
+version = "0.4.3"
 
 [deps]
 BayesBase = "b4ee3484-f114-42fe-b91c-797d54a0c67e"
@@ -26,7 +26,7 @@ Distributions = "0.25"
 Enzyme = "0.13"
 ExponentialFamily = "2.1.2"
 LinearAlgebra = "^1.9"
-LogExpFunctions = "0.3"
+LogExpFunctions = "0.3, 1"
 ReTestItems = "1.23.1"
 SpecialFunctions = "2.3.1"
 StableRNGs = "1.0.1"
