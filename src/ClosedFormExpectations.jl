@@ -140,4 +140,7 @@ include("exponential_family_interface.jl")
 # support BayesBase ProductOf
 include("productof.jl")
 
+# the expectation protocol of BayesBase
+include("protocol.jl")
+
 end
