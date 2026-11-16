@@ -11,7 +11,14 @@ export ExpLogSquare
 export ClosedWilliamsProduct
 
 """
-    ClosedFormExpectation
+    ClosedFormExpectation()
+
+The strategy of closed-form expectations: `mean(ClosedFormExpectation(), f, q)` is `E_q[f(x)]` in
+closed form, for the pairs of [`ClosedFormExpectations.has_closed_form`](@ref).
+
+It is also a backend of BayesBase's expectation protocol, registered when the package is loaded:
+`BayesBase.expectation(ClosedFormExpectation(), f, q)` is the same expectation, labelled exact; see
+[The Expectation Protocol of BayesBase](@ref lib-protocol).
 """
 struct ClosedFormExpectation end
 
