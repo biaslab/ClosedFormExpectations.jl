@@ -41,9 +41,5 @@ ReTestItems = "817f1d60-ba6b-4fd5-9520-3cf149f6a823"
 StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
-[sources]
-# TEMPORARY: BayesBase's expectation protocol (1.7), until it is released
-BayesBase = {url = "https://github.com/ReactiveBayes/BayesBase.jl", rev = "universal-inference"}
-
 [targets]
 test = ["Aqua", "CpuId", "Enzyme", "Test", "ReTestItems", "StableRNGs"]

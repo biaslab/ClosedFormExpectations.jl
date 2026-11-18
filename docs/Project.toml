@@ -10,6 +10,4 @@ LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 Documenter = "1"
 
 [sources]
-# TEMPORARY: BayesBase's expectation protocol (1.7), until it is released
-BayesBase = {url = "https://github.com/ReactiveBayes/BayesBase.jl", rev = "universal-inference"}
 ClosedFormExpectations = {path = ".."}
