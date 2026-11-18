@@ -32,3 +32,12 @@ mean(ClosedFormExpectation(), log, Exponential(10))
 mean(ClosedFormExpectation(), Logpdf(LogNormal(1, 10)), Exponential(10))
 mean(ClosedFormExpectation(), Base.Fix1(logpdf, Exponential(1)), Exponential(10))
 ```
+
+## The expectation protocol of BayesBase
+
+`ClosedFormExpectation()` is also a backend of BayesBase's expectation protocol. For the pairs with a closed form, `BayesBase.expectation(ClosedFormExpectation(), f, q)` returns `mean(ClosedFormExpectation(), f, q)` and labels the result exact. The backend is registered when the package is loaded, so inference packages that choose among the loaded backends, such as RxInfer, use the closed forms where they exist. `ClosedFormExpectations.has_closed_form(strategy, f, q)` checks whether a pair has a closed form.
+
+```julia
+using ClosedFormExpectations, BayesBase, Distributions
+BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, LogNormal(0.3, 0.7)), Gamma(2.0, 1.5))
+```

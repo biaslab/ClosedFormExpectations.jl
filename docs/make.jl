@@ -13,6 +13,7 @@ makedocs(
             "Expression Types"     => "lib/expressions.md",
             "Supported Pairs"      => "lib/supported-pairs.md",
             "Custom Distributions" => "lib/distributions.md",
+            "Expectation Protocol" => "lib/protocol.md",
         ],
         "Extensions" => [
             "Enzyme" => "extensions/enzyme.md",

@@ -11,7 +11,15 @@ export ExpLogSquare
 export ClosedWilliamsProduct
 
 """
-    ClosedFormExpectation
+    ClosedFormExpectation()
+
+A strategy for computing expectations in closed form. `mean(ClosedFormExpectation(), f, q)`
+computes `E_q[f(x)]` for the pairs where [`ClosedFormExpectations.has_closed_form`](@ref) is
+`true`.
+
+`ClosedFormExpectation()` is also a backend of BayesBase's expectation protocol and is registered
+when the package is loaded. `BayesBase.expectation(ClosedFormExpectation(), f, q)` computes the
+same expectation and labels it exact. See [The Expectation Protocol of BayesBase](@ref lib-protocol).
 """
 struct ClosedFormExpectation end
 
@@ -139,5 +147,8 @@ include("exponential_family_interface.jl")
 
 # support BayesBase ProductOf
 include("productof.jl")
+
+# the expectation protocol of BayesBase
+include("protocol.jl")
 
 end

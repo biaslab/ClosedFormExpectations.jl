@@ -1,7 +1,7 @@
 name = "ClosedFormExpectations"
 uuid = "70ff922c-62d4-418d-abfc-e284e489b734"
 authors = ["Mykola Lukashchuk <nikola.lukashuk@gmail.com> and contributors"]
-version = "0.4.3"
+version = "0.5.0"
 
 [deps]
 BayesBase = "b4ee3484-f114-42fe-b91c-797d54a0c67e"
@@ -20,7 +20,7 @@ ClosedFormExpectationsEnzymeExt = "Enzyme"
 
 [compat]
 Aqua = "0.8.4"
-BayesBase = "1.5.8"
+BayesBase = "1.7"
 CpuId = "0.3.1"
 Distributions = "0.25"
 Enzyme = "0.13"
