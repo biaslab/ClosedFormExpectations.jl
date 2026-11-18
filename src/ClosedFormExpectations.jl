@@ -13,12 +13,13 @@ export ClosedWilliamsProduct
 """
     ClosedFormExpectation()
 
-The strategy of closed-form expectations: `mean(ClosedFormExpectation(), f, q)` is `E_q[f(x)]` in
-closed form, for the pairs of [`ClosedFormExpectations.has_closed_form`](@ref).
+A strategy for computing expectations in closed form. `mean(ClosedFormExpectation(), f, q)`
+computes `E_q[f(x)]` for the pairs where [`ClosedFormExpectations.has_closed_form`](@ref) is
+`true`.
 
-It is also a backend of BayesBase's expectation protocol, registered when the package is loaded:
-`BayesBase.expectation(ClosedFormExpectation(), f, q)` is the same expectation, labelled exact; see
-[The Expectation Protocol of BayesBase](@ref lib-protocol).
+`ClosedFormExpectation()` is also a backend of BayesBase's expectation protocol and is registered
+when the package is loaded. `BayesBase.expectation(ClosedFormExpectation(), f, q)` computes the
+same expectation and labels it exact. See [The Expectation Protocol of BayesBase](@ref lib-protocol).
 """
 struct ClosedFormExpectation end
 
