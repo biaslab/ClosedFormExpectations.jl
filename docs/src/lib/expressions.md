@@ -1,6 +1,6 @@
 # [Expression Types](@id lib-expressions)
 
-The package defines an `Expression` abstract type and several concrete expression types that can be used as the function argument `f` in `mean(strategy, f, q)`. These types support function composition via the `∘` operator.
+The package defines an `Expression` abstract type and several concrete expression types that can be used as the integrand `f` in `BayesBase.expectation(ClosedFormExpectation(), f, q)`. These types support function composition via the `∘` operator.
 
 ## [ExpLogSquare](@id lib-explogs)
 
@@ -18,7 +18,7 @@ Typically used in composed form with `log`:
 
 ```julia
 # Computes E_q[-(log x - μ)² / (2σ²)]
-mean(ClosedFormExpectation(), log ∘ ExpLogSquare(μ, σ), q)
+BayesBase.expectation(ClosedFormExpectation(), log ∘ ExpLogSquare(μ, σ), q)
 ```
 
 ## [Square](@id lib-square)
@@ -31,7 +31,7 @@ Represents ``x^2``. Typically used composed with `log` to compute expectations o
 
 ```julia
 # Computes E_q[(log x)²]
-mean(ClosedFormExpectation(), Square() ∘ log, q)
+BayesBase.expectation(ClosedFormExpectation(), Square() ∘ log, q)
 ```
 
 ## [Power](@id lib-power)
@@ -44,7 +44,7 @@ Represents ``x^N`` for compile-time constant ``N``. Used composed with `log`:
 
 ```julia
 # Computes E_q[(log x)³]
-mean(ClosedFormExpectation(), Power(Val(3)) ∘ log, q)
+BayesBase.expectation(ClosedFormExpectation(), Power(Val(3)) ∘ log, q)
 ```
 
 ## [Abs](@id lib-abs)
@@ -57,7 +57,7 @@ Represents the absolute value function ``|x|``:
 
 ```julia
 # Computes E_q[|x|] where q is Normal
-mean(ClosedFormExpectation(), Abs(), Normal(0, 1))
+BayesBase.expectation(ClosedFormExpectation(), Abs(), Normal(0, 1))
 ```
 
 ## [Product](@id lib-product)

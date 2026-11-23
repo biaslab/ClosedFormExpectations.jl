@@ -27,7 +27,7 @@ d = LogGamma(2.0, 3.0)
 logpdf(d, 0.5)
 
 # Used as a target in expectations
-mean(ClosedFormExpectation(), Logpdf(LogGamma(2.0, 3.0)), Normal(0, 1))
+BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, LogGamma(2.0, 3.0)), Normal(0, 1))
 ```
 
 ## [ReLU Factor Messages](@id lib-relu-messages)
@@ -56,8 +56,8 @@ logpdf(d_bwd, 0.5)                     # log 𝒩(0.5; 1.0, 2.0)
 logpdf(d_bwd, -0.5)                    # log 𝒩(0.0; 1.0, 2.0)  (constant for x ≤ 0)
 
 # Closed-form expectations
-mean(ClosedFormExpectation(), Logpdf(ReLUForwardMessage(1.0, 2.0)), Gamma(3.0, 1.0))
-mean(ClosedFormExpectation(), Logpdf(ReLUBackwardMessage(1.0, 2.0)), Normal(0.5, 1.0))
+BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, ReLUForwardMessage(1.0, 2.0)), Gamma(3.0, 1.0))
+BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, ReLUBackwardMessage(1.0, 2.0)), Normal(0.5, 1.0))
 ```
 
 ## [LinearLogGamma](@id lib-linearloggamma)
@@ -83,5 +83,5 @@ d = LinearLogGamma(2.0, 3.0, [0.5, 0.3, 0.2])
 logpdf(d, [1.0, 2.0, 3.0])
 
 # Used as a target in expectations with multivariate Normal
-mean(ClosedFormExpectation(), Logpdf(LinearLogGamma(2.0, 3.0, [0.5, 0.3])), MvNormal([0.0, 0.0], [1.0 0.0; 0.0 1.0]))
+BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, LinearLogGamma(2.0, 3.0, [0.5, 0.3])), MvNormal([0.0, 0.0], [1.0 0.0; 0.0 1.0]))
 ```

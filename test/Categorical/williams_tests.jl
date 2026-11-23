@@ -1,4 +1,6 @@
 @testitem "Categorical EF Williams product Monte Carlo" begin
+    import BayesBase
+    using Distributions
     using ClosedFormExpectations
     using Distributions
     using ExponentialFamily: ExponentialFamilyDistribution, sufficientstatistics, gradlogpartition
@@ -16,13 +18,15 @@
         target_weights = rand(rng, K) .+ 0.1
         target = Categorical(target_weights ./ sum(target_weights))
         normal = Normal(randn(rng), rand(rng) + 0.5)
-        for f in (k -> scores[k], Logpdf(target), Logpdf(normal))
-            central_limit_theorem_test(ClosedWilliamsProduct(), f, ef, score)
+        for f in (k -> scores[k], Base.Fix1(logpdf, target), Base.Fix1(logpdf, normal))
+            central_limit_theorem_test(ClosedFormExpectation(), f, ef, score)
         end
     end
 end
 
 @testitem "Categorical Williams product in natural coordinates" begin
+    import BayesBase
+    using Distributions
     using ClosedFormExpectations
     using Distributions
     using ExponentialFamily: ExponentialFamilyDistribution, getnaturalparameters
@@ -32,33 +36,33 @@ end
     end
     (f::CategoryScore)(k) = f.values[k]
 
-    strategy = ClosedWilliamsProduct()
+    strategy = ClosedFormExpectation()
     q = Categorical([0.2, 0.3, 0.5])
     ef = convert(ExponentialFamilyDistribution, q)
     scores = [1, 2, 4]
-    gradient = mean(strategy, k -> scores[k], ef)
+    gradient = BayesBase.expectation_gradient(strategy, k -> scores[k], ef)
     @test gradient ≈ [-0.36, -0.24, 0.6]
     @test length(gradient) == 3
     @test gradient[end] ≈ 0.6
     @test sum(gradient) ≈ 0 atol = 1e-14
-    @test mean(strategy, CategoryScore(scores), ef) ≈ gradient
-    @test mean(strategy, _ -> 7.0, ef) ≈ zeros(3) atol = 1e-14
-    @test mean(strategy, k -> scores[k] + 5, ef) ≈ gradient
-    @test_throws MethodError mean(strategy, identity, q)
+    @test BayesBase.expectation_gradient(strategy, CategoryScore(scores), ef) ≈ gradient
+    @test BayesBase.expectation_gradient(strategy, _ -> 7.0, ef) ≈ zeros(3) atol = 1e-14
+    @test BayesBase.expectation_gradient(strategy, k -> scores[k] + 5, ef) ≈ gradient
+    @test_throws BayesBase.UnsupportedExpectationError BayesBase.expectation_gradient(strategy, identity, q)
 
     @testset "Finite differences in reference logits" begin
         for p in ([0.2, 0.3, 0.5], [0.7, 0.3], [0.1, 0.2, 0.3, 0.4])
             ef = convert(ExponentialFamilyDistribution, Categorical(p))
             η = getnaturalparameters(ef)
             f = k -> k^2 - 2k + 0.3
-            g = mean(strategy, f, ef)
+            g = BayesBase.expectation_gradient(strategy, f, ef)
             h = 1e-5
             for k in 1:(length(p) - 1)
                 plus, minus = copy(η), copy(η)
                 plus[k] += h
                 minus[k] -= h
-                μ_plus = mean(ClosedFormExpectation(), f, ExponentialFamilyDistribution(Categorical, plus, length(p)))
-                μ_minus = mean(ClosedFormExpectation(), f, ExponentialFamilyDistribution(Categorical, minus, length(p)))
+                μ_plus = BayesBase.expectation(ClosedFormExpectation(), f, ExponentialFamilyDistribution(Categorical, plus, length(p)))
+                μ_minus = BayesBase.expectation(ClosedFormExpectation(), f, ExponentialFamilyDistribution(Categorical, minus, length(p)))
                 @test isapprox(g[k], (μ_plus - μ_minus) / (2h); atol = 1e-9, rtol = 1e-7)
             end
         end
@@ -66,19 +70,21 @@ end
 
     @testset "Numeric promotion" begin
         ef32 = convert(ExponentialFamilyDistribution, Categorical(Float32[0.2, 0.3, 0.5]))
-        g32 = mean(strategy, CategoryScore(Float32[1, 2, 4]), ef32)
+        g32 = BayesBase.expectation_gradient(strategy, CategoryScore(Float32[1, 2, 4]), ef32)
         @test eltype(g32) == Float32
         @test g32 ≈ Float32[-0.36, -0.24, 0.6]
-        @test eltype(mean(strategy, CategoryScore(BigFloat[1, 2, 4]), ef32)) == BigFloat
+        @test eltype(BayesBase.expectation_gradient(strategy, CategoryScore(BigFloat[1, 2, 4]), ef32)) == BigFloat
     end
 end
 
 @testitem "Categorical Williams product skips zero mass" begin
+    import BayesBase
+    using Distributions
     using ClosedFormExpectations
     using Distributions
     using ExponentialFamily: ExponentialFamilyDistribution, getnaturalparameters
 
-    strategy = ClosedWilliamsProduct()
+    strategy = ClosedFormExpectation()
     ef = convert(ExponentialFamilyDistribution, Categorical([0.0, 0.8, 0.2]))
     calls = zeros(Int, 3)
     f = k -> begin
@@ -87,7 +93,7 @@ end
         return k
     end
     η = copy(getnaturalparameters(ef))
-    g = mean(strategy, f, ef)
+    g = BayesBase.expectation_gradient(strategy, f, ef)
     @test g ≈ [0.0, -0.16, 0.16]
     @test iszero(g[1])
     @test calls == [0, 1, 1]
@@ -95,42 +101,34 @@ end
 
     target = Categorical([0.0, 0.5, 0.5])
     @test logpdf(target, 1) == -Inf
-    @test mean(strategy, Logpdf(target), ef) ≈ zeros(3) atol = 1e-14
-    @test mean(strategy, target, ef) ≈ zeros(3) atol = 1e-14
+    @test BayesBase.expectation_gradient(strategy, Base.Fix1(logpdf, target), ef) ≈ zeros(3) atol = 1e-14
 
     # Stable softmax also handles extreme finite logits and underflowed mass.
     extreme = ExponentialFamilyDistribution(Categorical, [1000.0, 999.0, 0.0], 3)
     extreme_score = k -> k == 3 ? error("Evaluated underflowed mass") : k
     a = inv(1 + exp(-1))
-    @test mean(strategy, extreme_score, extreme) ≈ [-a * (1 - a), a * (1 - a), 0.0]
+    @test BayesBase.expectation_gradient(strategy, extreme_score, extreme) ≈ [-a * (1 - a), a * (1 - a), 0.0]
 end
 
 @testitem "Categorical Williams product target bridges and dispatch" begin
+    import BayesBase
+    using Distributions
     using ClosedFormExpectations
     using Distributions
     using ExponentialFamily: ExponentialFamilyDistribution, ProductOf
     using Enzyme
     using Test
 
-    strategy = ClosedWilliamsProduct()
+    strategy = ClosedFormExpectation()
     p = [0.2, 0.3, 0.5]
     ef = convert(ExponentialFamilyDistribution, Categorical(p))
     targets = (Categorical([0.4, 0.1, 0.5]), Normal(0, 1), Poisson(2))
     for target in targets
         # Independently enumerate f(k) times the score vector e_k - p.
         expected = sum(p[k] * logpdf(target, k) .* ([j == k for j in 1:3] .- p) for k in 1:3)
-        @test mean(strategy, target, ef) ≈ expected
-        @test mean(strategy, Logpdf(target), ef) ≈ expected
-        @test mean(strategy, Base.Fix1(logpdf, target), ef) ≈ expected
+        @test BayesBase.expectation_gradient(strategy, Base.Fix1(logpdf, target), ef) ≈ expected
     end
 
-    product = Logpdf(ProductOf(targets[1], ProductOf(targets[2], targets[3])))
-    @test mean(strategy, product, ef) ≈ sum(mean(strategy, d, ef) for d in targets)
-
-    # The manual specialization must remain disjoint from the Enzyme backend.
-    categorical_signature = Tuple{typeof(ClosedFormExpectations.mean_ef_impl), ClosedWilliamsProduct, Any, ExponentialFamilyDistribution{<:Categorical}}
-    ambiguities = Test.detect_ambiguities(ClosedFormExpectations, Base.get_extension(ClosedFormExpectations, :ClosedFormExpectationsEnzymeExt); recursive = false)
-    @test isempty(filter(ambiguities) do pair
-        any(method -> method.sig <: categorical_signature, pair)
-    end)
+    product = Base.Fix1(logpdf, ProductOf(targets[1], ProductOf(targets[2], targets[3])))
+    @test BayesBase.expectation_gradient(strategy, product, ef) ≈ sum(BayesBase.expectation_gradient(strategy, Base.Fix1(logpdf, d), ef) for d in targets)
 end

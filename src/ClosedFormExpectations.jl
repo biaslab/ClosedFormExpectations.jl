@@ -1,34 +1,35 @@
 module ClosedFormExpectations
 
-export mean
-
 import Base: log
 import BayesBase
-import Distributions: mean
+import BayesBase: @supports_expectation, @supports_expectation_gradient, expectation, expectation_gradient
+import Distributions: mean, logpdf
 
 export ClosedFormExpectation
 export ExpLogSquare
-export ClosedWilliamsProduct
 
 """
     ClosedFormExpectation()
+    ClosedFormExpectation(gradient)
 
-A strategy for computing expectations in closed form. `mean(ClosedFormExpectation(), f, q)`
-computes `E_q[f(x)]` for the pairs where [`ClosedFormExpectations.has_closed_form`](@ref) is
-`true`.
+A backend of BayesBase's expectation protocol that computes expectations and their gradients in
+closed form. `BayesBase.expectation(ClosedFormExpectation(), f, q)` computes ``\\mathbb{E}_q[f]``,
+and `BayesBase.expectation_gradient(ClosedFormExpectation(), f, q)` its gradient with respect to the
+parameters of `q`, for the pairs listed in [Supported Pairs](@ref lib-supported-pairs).
+`BayesBase.supports_expectation(ClosedFormExpectation(), f, q)` and
+`BayesBase.supports_expectation_gradient(ClosedFormExpectation(), f, q)` say whether a pair is
+supported. The backend labels its results exact and is registered when the package is loaded. See
+[The Expectation Protocol of BayesBase](@ref lib-protocol).
 
-`ClosedFormExpectation()` is also a backend of BayesBase's expectation protocol and is registered
-when the package is loaded. `BayesBase.expectation(ClosedFormExpectation(), f, q)` computes the
-same expectation and labels it exact. See [The Expectation Protocol of BayesBase](@ref lib-protocol).
+`gradient` selects how gradients are computed: `nothing`, the default, uses the formulas written
+in the package, and an [`EnzymeBackend`](@ref) differentiates the closed-form expectation with
+Enzyme.jl, see [Enzyme Extension](@ref ext-enzyme).
 """
-struct ClosedFormExpectation end
+struct ClosedFormExpectation{G}
+    gradient::G
+end
 
-"""
-    mean(::ClosedFormExpectation, f, q)
-
-Compute the E_q[f(x)] where q is a distribution and f is a function.
-"""
-function mean(::ClosedFormExpectation, ::Nothing, ::Nothing) end
+ClosedFormExpectation() = ClosedFormExpectation(nothing)
 
 """
     EnzymeForward
@@ -49,19 +50,19 @@ export EnzymeForward, EnzymeReverse
 """
     EnzymeBackend{Mode}
 
-Backend for `ClosedWilliamsProduct` that uses Enzyme.jl automatic differentiation
-to compute ``\\nabla_\\eta \\mathbb{E}_q[f(x)]``, exploiting the identity
+Computes the gradient of an expectation for `ClosedFormExpectation(EnzymeBackend())` by
+differentiating the closed-form expectation with Enzyme.jl, using the identity
 
 ```math
 \\mathbb{E}_q[f(x)\\,\\nabla_\\eta \\log q(x;\\eta)] = \\nabla_\\eta \\mathbb{E}_q[f(x)]
 ```
 
-Requires Enzyme.jl to be loaded. Works for any `ExponentialFamilyDistribution{T}` where
-a `ClosedFormExpectation` is already defined.
+It requires Enzyme.jl to be loaded. It works for an `ExponentialFamilyDistribution{T}`, in its
+natural parameters `η`, wherever the expectation has a closed form under `T`.
 
 The `Mode` type parameter selects the AD mode:
-- `EnzymeBackend()` or `EnzymeBackend(EnzymeReverse())` — reverse-mode (default, efficient for many outputs).
-- `EnzymeBackend(EnzymeForward())` — forward-mode (efficient for few inputs).
+- `EnzymeBackend()` or `EnzymeBackend(EnzymeReverse())`: reverse mode, the default.
+- `EnzymeBackend(EnzymeForward())`: forward mode.
 """
 struct EnzymeBackend{Mode}
     mode::Mode
@@ -70,39 +71,14 @@ EnzymeBackend() = EnzymeBackend(EnzymeReverse())
 
 export EnzymeBackend
 
-"""
-    ClosedWilliamsProduct{B}
-
-A strategy for computing the Williams' product (score function estimator gradient):
-``\\mathbb{E}_q[f(x) \\nabla_\\theta \\log q(x; \\theta)]``.
-
-The optional `backend` field selects the differentiation backend:
-- `ClosedWilliamsProduct()` — default, uses hand-coded implementations.
-- `ClosedWilliamsProduct(EnzymeBackend())` — Enzyme reverse-mode AD (requires `using Enzyme`).
-- `ClosedWilliamsProduct(EnzymeBackend(EnzymeForward()))` — Enzyme forward-mode AD.
-"""
-struct ClosedWilliamsProduct{B}
-    backend::B
-end
-ClosedWilliamsProduct() = ClosedWilliamsProduct(nothing)
-
-"""
-    mean(::ClosedWilliamsProduct, f, q)
-
-Suppose q is a distribution with density parameterized by θ and f is a function.
-
-Compute the E_q[f(x) ∇_θ log q(x; θ)] where q is a distribution and f is a function.
-"""
-function mean(::ClosedWilliamsProduct, ::Nothing, ::Nothing) end
+# The integrand of the expected log-density `E_q[log p]`
+const LogpdfOf{D} = Base.Fix1{typeof(logpdf), D}
 
 abstract type Expression end
 
 function (f::ComposedFunction{typeof(log), T})(x) where {T <: Expression}
     return log(f.inner, x)
 end
-
-# Logpdf structure
-include("logpdf.jl")
 
 # expressions
 include("expressions/ExpLogSquare.jl")
@@ -141,12 +117,6 @@ include("Gamma/relu_messages.jl")
 include("LogNormal/expectation.jl")
 include("LogNormal/relu_messages.jl")
 include("Gamma/williams_gamma_ef.jl")
-
-# exponetial family distribution interface
-include("exponential_family_interface.jl")
-
-# support BayesBase ProductOf
-include("productof.jl")
 
 # the expectation protocol of BayesBase
 include("protocol.jl")

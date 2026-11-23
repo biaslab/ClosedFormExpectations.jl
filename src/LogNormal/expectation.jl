@@ -1,19 +1,19 @@
-function mean(::ClosedFormExpectation, p::Logpdf{<:GammaDistributionsFamily}, q::LogNormal)
-    α_p, θ_p = shape(p.dist), scale(p.dist)
+@supports_expectation function expectation(::ClosedFormExpectation, p::LogpdfOf{<:GammaDistributionsFamily}, q::LogNormal)
+    α_p, θ_p = shape(p.x), scale(p.x)
     μ_q, σ_q = q.μ, q.σ
     E_log_x = μ_q
     E_x = exp(μ_q + σ_q^2 / 2)
     return (α_p - 1) * E_log_x - E_x / θ_p - α_p * log(θ_p) - loggamma(α_p)
 end
 
-function mean(::ClosedFormExpectation, p::Logpdf{LogNormal{T}}, q::LogNormal) where {T}
-    μ_p, σ_p = p.dist.μ, p.dist.σ
+@supports_expectation function expectation(::ClosedFormExpectation, p::LogpdfOf{LogNormal{T}}, q::LogNormal) where {T}
+    μ_p, σ_p = p.x.μ, p.x.σ
     μ_q, σ_q = q.μ, q.σ
     return -μ_q - log(σ_p) - 0.5 * log(2 * pi) - (σ_q^2 + (μ_q - μ_p)^2) / (2 * σ_p^2)
 end
 
-function mean(::ClosedFormExpectation, p::Logpdf{<:UnivariateNormalDistributionsFamily}, q::LogNormal)
-    μ_p, v_p = mean_var(p.dist)
+@supports_expectation function expectation(::ClosedFormExpectation, p::LogpdfOf{<:UnivariateNormalDistributionsFamily}, q::LogNormal)
+    μ_p, v_p = mean_var(p.x)
     μ_q, σ_q = q.μ, q.σ
     E_x = exp(μ_q + σ_q^2 / 2)
     E_x2 = exp(2 * μ_q + 2 * σ_q^2)

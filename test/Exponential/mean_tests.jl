@@ -1,4 +1,4 @@
-@testitem "mean(::ClosedFormExpectation, ::Logpdf{LogNormal}, ::Exponential)" begin
+@testitem "expectation(::ClosedFormExpectation, ::Fix1{logpdf, LogNormal}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -8,11 +8,11 @@
     for _ in 1:10   
         μ, σ  = rand(rng)*10, rand(rng)*10
         λ = rand(rng)*10
-        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(LogNormal(μ, σ)), Exponential(λ))
+        central_limit_theorem_test(ClosedFormExpectation(), Base.Fix1(logpdf, LogNormal(μ, σ)), Exponential(λ))
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::typeof{log}, ::Exponential)" begin
+@testitem "expectation(::ClosedFormExpectation, ::typeof{log}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -41,7 +41,7 @@ end
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::Logpdf{Exponential}, ::Exponential)" begin
+@testitem "expectation(::ClosedFormExpectation, ::Fix1{logpdf, Exponential}, ::Exponential)" begin
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -52,11 +52,11 @@ end
     for _ in 1:10
         λ1 = rand(rng)*10
         λ2 = rand(rng)*10
-        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(Exponential(λ2)), Exponential(λ1))
+        central_limit_theorem_test(ClosedFormExpectation(), Base.Fix1(logpdf, Exponential(λ2)), Exponential(λ1))
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::Logpdf{Exponential}, ::ExponentialFamilyDistribution{Exponential}" begin
+@testitem "expectation(::ClosedFormExpectation, ::Fix1{logpdf, Exponential}, ::ExponentialFamilyDistribution{Exponential}" begin
     using Distributions
     using ClosedFormExpectations
     using ExponentialFamily
@@ -68,6 +68,6 @@ end
     for _ in 1:10
         λ1 = rand(rng)*10
         λ2 = rand(rng)*10
-        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(Exponential(λ2)), convert(ExponentialFamilyDistribution, Exponential(λ1)))
+        central_limit_theorem_test(ClosedFormExpectation(), Base.Fix1(logpdf, Exponential(λ2)), convert(ExponentialFamilyDistribution, Exponential(λ1)))
     end
 end

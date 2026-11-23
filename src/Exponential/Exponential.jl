@@ -1,51 +1,54 @@
+using StaticArrays
 import Distributions: Exponential, LogNormal, scale, kldivergence, entropy
+
+# The gradients are with respect to the scale of `q`, its mean, as a vector of length one
 import Base.MathConstants: eulergamma
 import LogExpFunctions: xlogx
 
-function mean(::ClosedFormExpectation, f::Logpdf{Exponential{T}}, q::Exponential) where {T}
+@supports_expectation function expectation(::ClosedFormExpectation, f::LogpdfOf{Exponential{T}}, q::Exponential) where {T}
     λ1 = mean(q)
-    λ2 = mean(f.dist)
+    λ2 = mean(f.x)
     return -(λ1 + xlogx(λ2))/λ2
 end
 
-function mean(::ClosedFormExpectation, f::Logpdf{LogNormal{T}}, q::Exponential) where {T}
-    μ, σ = f.dist.μ, f.dist.σ
+@supports_expectation function expectation(::ClosedFormExpectation, f::LogpdfOf{LogNormal{T}}, q::Exponential) where {T}
+    μ, σ = f.x.μ, f.x.σ
     λ = mean(q)
     return 1/(2*σ^2)*(-(μ+eulergamma)^2 - π^2/6 - log(λ)*(-2*(eulergamma+μ) + log(λ))) + eulergamma - log(λ) - 0.5*log(2π) - log(σ)
 end 
 
-function mean(::ClosedFormExpectation, ::typeof(log), q::Exponential)
+@supports_expectation function expectation(::ClosedFormExpectation, ::typeof(log), q::Exponential)
     return -eulergamma + log(mean(q))
 end
 
-function mean(::ClosedFormExpectation, ::ComposedFunction{typeof(log), typeof(identity)}, q::Exponential)
+@supports_expectation function expectation(::ClosedFormExpectation, ::ComposedFunction{typeof(log), typeof(identity)}, q::Exponential)
     return -eulergamma + log(mean(q))
 end
 
-function mean(::ClosedFormExpectation, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Exponential) where {T}
+@supports_expectation function expectation(::ClosedFormExpectation, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Exponential) where {T}
     μ, σ = f.inner.μ, f.inner.σ
     λ = mean(q)
     return 1/(2*σ^2)*(-(μ+eulergamma)^2 - π^2/6 - log(λ)*(-2*(eulergamma+μ) + log(λ)))
 end
 
-function mean(::ClosedWilliamsProduct, ::typeof(log), q::Exponential)
-    return 1/mean(q)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, ::typeof(log), q::Exponential)
+    return @SVector [1/mean(q)]
 end
 
-function mean(::ClosedWilliamsProduct, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Exponential) where {T}
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Exponential) where {T}
     μ = f.inner.μ
     σ = f.inner.σ
     λ = mean(q)
-    return 1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ)
+    return @SVector [1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ)]
 end
 
-function mean(::ClosedWilliamsProduct, f::Logpdf{LogNormal{T}}, q::Exponential) where {T}
-    μ, σ = f.dist.μ, f.dist.σ
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, f::LogpdfOf{LogNormal{T}}, q::Exponential) where {T}
+    μ, σ = f.x.μ, f.x.σ
     λ = mean(q)
-    return 1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ) - 1/λ
+    return @SVector [1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ) - 1/λ]
 end 
 
-function mean(::ClosedWilliamsProduct, f::Logpdf{Exponential{T}}, ::Exponential) where {T}
-    λ2 = mean(f.dist)
-    return -1/λ2
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, f::LogpdfOf{Exponential{T}}, ::Exponential) where {T}
+    λ2 = mean(f.x)
+    return @SVector [-1/λ2]
 end

@@ -1,35 +1,33 @@
 # [Enzyme Extension](@id ext-enzyme)
 
-The `ClosedFormExpectationsEnzymeExt` extension is automatically loaded when
-[Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl) is present in the environment.
-It provides an automatic differentiation backend for
-[`ClosedWilliamsProduct`](@ref lib-core-types)
-that eliminates the need to hand-code Jacobians for new distribution families.
+The `ClosedFormExpectationsEnzymeExt` extension is loaded when
+[Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl) is loaded. It computes the gradient of an
+expectation by differentiating the closed-form expectation with Enzyme, so a new distribution
+family does not need a hand-written Jacobian.
 
 ## Motivation
 
-The Williams' product satisfies the identity
+The gradient of an expectation with respect to the natural parameters ``\eta`` of ``q`` satisfies
 
 ```math
 \mathbb{E}_q\!\left[f(x)\,\nabla_\eta \log q(x;\eta)\right]
 = \nabla_\eta\,\mathbb{E}_q[f(x)]
 ```
 
-where ``\eta`` are the natural parameters of ``q``.  
-Because the right-hand side is just the gradient of the *already-implemented*
-[`ClosedFormExpectation`](@ref lib-core-types), Enzyme can compute it automatically —
-no manual Jacobian derivation required.
+The right-hand side is the gradient of an expectation the package already computes, so Enzyme can
+compute it without a hand-derived formula.
 
 ## Backends
 
-Two AD modes are available, selected via the `backend` field of
-[`ClosedWilliamsProduct`](@ref lib-core-types):
+The AD mode is the `gradient` field of [`ClosedFormExpectation`](@ref lib-core-types):
 
 | Constructor | Mode | Notes |
 |:------------|:-----|:------|
-| `ClosedWilliamsProduct(EnzymeBackend())` | Reverse (default) | One backward pass; efficient when there are few outputs |
-| `ClosedWilliamsProduct(EnzymeBackend(EnzymeReverse()))` | Reverse (explicit) | Same as above |
-| `ClosedWilliamsProduct(EnzymeBackend(EnzymeForward()))` | Forward | One forward pass per parameter; good for low-dimensional ``\eta`` |
+| `ClosedFormExpectation(EnzymeBackend())` | Reverse (default) | One backward pass; efficient when there are few outputs |
+| `ClosedFormExpectation(EnzymeBackend(EnzymeReverse()))` | Reverse (explicit) | Same as above |
+| `ClosedFormExpectation(EnzymeBackend(EnzymeForward()))` | Forward | One forward pass per parameter; good for low-dimensional ``\eta`` |
+
+Expectations are computed by these backends as by `ClosedFormExpectation()`. Only gradients differ.
 
 ```@docs
 EnzymeBackend
@@ -40,44 +38,37 @@ EnzymeForward
 ## Usage
 
 ```julia
-using ClosedFormExpectations, Distributions, ExponentialFamily, Enzyme
-
-# Any ExponentialFamilyDistribution{T} for which ClosedFormExpectation is defined
-# automatically gets a Williams' product via Enzyme — no extra code needed.
+using ClosedFormExpectations, BayesBase, Distributions, ExponentialFamily, Enzyme
 
 ef = convert(ExponentialFamilyDistribution, LogNormal(1.0, 0.5))
 
-# Reverse-mode (default)
-mean(ClosedWilliamsProduct(EnzymeBackend()), Logpdf(Gamma(2.0, 3.0)), ef)
+# Reverse mode (default)
+BayesBase.expectation_gradient(ClosedFormExpectation(EnzymeBackend()), Base.Fix1(logpdf, Gamma(2.0, 3.0)), ef)
 
-# Forward-mode
-mean(ClosedWilliamsProduct(EnzymeBackend(EnzymeForward())), Logpdf(Gamma(2.0, 3.0)), ef)
+# Forward mode
+BayesBase.expectation_gradient(ClosedFormExpectation(EnzymeBackend(EnzymeForward())), Base.Fix1(logpdf, Gamma(2.0, 3.0)), ef)
 ```
 
-The default `ClosedWilliamsProduct()` (no backend) is unchanged and still routes to
-hand-coded implementations where available. See [Core Types](@ref lib-core-types).
+`ClosedFormExpectation()` uses the formulas written in the package. See
+[The Backend](@ref lib-core-types).
 
 ## When to use it
 
 Use `EnzymeBackend` when:
 
-- You have added a new distribution family with a `ClosedFormExpectation` but have **not**
-  yet written a hand-coded `ClosedWilliamsProduct`.
-- You want to **prototype** quickly and verify correctness before committing to a manual
-  derivation.
-- The distribution is wrapped as an `ExponentialFamilyDistribution{T}` — the extension
-  handles the natural-parameter Jacobian automatically.
+- you have added a closed-form expectation for a new distribution family but no formula for its
+  gradient;
+- you want to check a new formula against automatic differentiation;
+- the distribution is an `ExponentialFamilyDistribution{T}`, whose natural parameters the
+  extension differentiates.
 
 !!! note
-    Hand-coded implementations (registered via `mean_ef_impl` for `ClosedWilliamsProduct{Nothing}`)
-    are still preferred when available, as they avoid AD overhead. The Enzyme backend acts
-    as a generic fallback for any `ExponentialFamilyDistribution{T}` not yet covered.
+    The hand-written formulas of `ClosedFormExpectation()` avoid the cost of automatic
+    differentiation, so use them where they exist.
 
 ## Supported scope
 
-The extension works for **any** `ExponentialFamilyDistribution{T}` where
-`mean(ClosedFormExpectation(), f, q)` is defined (including via automatic conversion
-from `ExponentialFamilyDistribution` to a standard `Distributions.jl` type).
-
-This covers all distributions listed in the [Supported Pairs](@ref lib-supported-pairs)
-table when passed as `ExponentialFamilyDistribution` wrappers.
+The extension computes the gradient under any `ExponentialFamilyDistribution{T}` for which
+`BayesBase.expectation(ClosedFormExpectation(), f, q)` has a closed form, including through the
+conversion of `q` to its standard Distributions.jl form. Under other distributions it supports
+nothing, and `BayesBase.supports_expectation_gradient` says so.

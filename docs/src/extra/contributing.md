@@ -30,18 +30,21 @@ To add a new closed-form expectation:
    - `src/Gamma/` for Gamma-related expectations
    - `src/Exponential/` for Exponential-related expectations
    - `src/MvNormal/` for multivariate Normal expectations
-3. **Define a method** for `mean`:
+3. **Define a method** of `BayesBase.expectation` with BayesBase's `@supports_expectation`, which
+   also declares that the backend supports the pair:
    ```julia
-   function mean(::ClosedFormExpectation, f::YourFunctionType, q::YourDistribution)
+   @supports_expectation function expectation(backend::ClosedFormExpectation, f::YourFunctionType, q::YourDistribution)
        # closed-form expression here
    end
    ```
-4. **Optionally add the Williams' product**:
+4. **Optionally add its gradient** with `@supports_expectation_gradient`:
    ```julia
-   function mean(::ClosedWilliamsProduct, f::YourFunctionType, q::YourDistribution)
-       # return SVector of gradients w.r.t. distribution parameters
+   @supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation{Nothing}, f::YourFunctionType, q::YourDistribution)
+       # an SVector of the derivatives with respect to the parameters of q
    end
    ```
+   The test "Every closed form declares its support" fails for a method defined without the
+   macros.
 5. **Add tests** in the corresponding test file under `test/`. Tests typically validate against Monte Carlo estimates using the Central Limit Theorem.
 6. **Update the documentation** in `docs/src/lib/supported-pairs.md`.
 
