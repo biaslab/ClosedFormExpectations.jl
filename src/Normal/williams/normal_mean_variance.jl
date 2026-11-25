@@ -6,6 +6,7 @@ using StaticArrays
 # gradient under a `Normal` with respect to its mean and standard deviation
 function normalmeanvariance_gradient(backend, f, q::NormalMeanVariance)
     normal = Normal(mean(q), std(q))
-    jacobian_diagonal = @SVector [1.0, 0.5 / std(q)]
+    σ = std(q)
+    jacobian_diagonal = @SVector [one(σ), inv(2 * σ)]
     return jacobian_diagonal .* expectation_gradient(backend, f, normal)
 end

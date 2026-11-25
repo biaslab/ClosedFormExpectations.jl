@@ -41,7 +41,7 @@ function central_limit_theorem_test(::ClosedFormExpectation, f, q, N::Integer = 
 end
 
 # The gradient, against the score `score(q, x)`
-function central_limit_theorem_test(strategy::ClosedFormExpectation, f, q, score, N = 10^6)
+function central_limit_theorem_test(strategy, f, q, score, N = 10^6)
     rng = StableRNG(123)
     samples = rand(rng, q, N)
     transformed_samples = map(x -> score(q, x)*f(x), samples)

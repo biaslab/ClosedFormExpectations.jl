@@ -162,7 +162,7 @@ end
     import BayesBase: supports_expectation, ExpectationScoreProduct
 
     # The generic method of the package, for the pairs that follow from others by a rule
-    generic = which(supports_expectation, Tuple{ClosedFormExpectation{Nothing}, Type{Int}, Type{Int}})
+    generic = which(supports_expectation, Tuple{ClosedFormExpectation, Type{Int}, Type{Int}})
     declared = filter(m -> m.module === ClosedFormExpectations && m !== generic, collect(methods(supports_expectation)))
 
     function declaration(m, integrand)

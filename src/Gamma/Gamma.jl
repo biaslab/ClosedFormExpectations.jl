@@ -8,7 +8,7 @@ import ExponentialFamily: NormalMeanPrecision, NormalMeanVariance, mean_precisio
     return digamma(shape(q)) + log(scale(q))
 end
 
-@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, ::typeof(log), q::Gamma)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, ::typeof(log), q::Gamma)
     return @SVector [
         polygamma(1, shape(q)),
         1/scale(q)
@@ -29,7 +29,7 @@ end
     return trigamma(shape(q)) + (digamma(shape(q)) - log(rate(q)))^2
 end
 
-@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, ::ComposedFunction{Square, typeof(log)}, q::Gamma)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, ::ComposedFunction{Square, typeof(log)}, q::Gamma)
     return @SVector [
         polygamma(2, shape(q)) + 2 * (digamma(shape(q)) - log(rate(q)))*trigamma(shape(q)),
         2 * (digamma(shape(q)) - log(rate(q))) * rate(q)
@@ -49,7 +49,7 @@ end
     return -1/(2*σ^2)*(μ^2 - 2*μ*Elogx + Elog2x)
 end
 
-@supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation{Nothing}, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Gamma) where {T}
+@supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Gamma) where {T}
     μ, σ = f.inner.μ, f.inner.σ
     Elogx = expectation_gradient(backend, log, q)
     Elog2x = expectation_gradient(backend, Square() ∘ log, q)
@@ -63,14 +63,14 @@ end
     return E_logexplogsquare - E_logx - log(σ) - 0.5*log(2pi)
 end
 
-@supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation{Nothing}, f::LogpdfOf{LogNormal{T}}, q::Gamma) where {T}
+@supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation, f::LogpdfOf{LogNormal{T}}, q::Gamma) where {T}
     μ, σ = f.x.μ, f.x.σ
     E_logexplogsquare = expectation_gradient(backend, log ∘ ExpLogSquare(μ, σ), q)
     E_logx = expectation_gradient(backend, log, q)
     return E_logexplogsquare - E_logx
 end
 
-@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, p::LogpdfOf{<:GammaDistributionsFamily}, q::Gamma)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, p::LogpdfOf{<:GammaDistributionsFamily}, q::Gamma)
     α_p, θ_p = shape(p.x), scale(p.x)
     α_q, θ_q = shape(q), scale(q)
     # ∇_{α_q} E_q[log p]
@@ -110,7 +110,7 @@ end
     return term1 + term2
 end
 
-@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, p::LogpdfOf{<:UnivariateNormalDistributionsFamily}, q::Gamma)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, p::LogpdfOf{<:UnivariateNormalDistributionsFamily}, q::Gamma)
     x_val, v_val = mean_var(p.x)
     α, θ = shape(q), scale(q)
     

@@ -119,7 +119,7 @@ A 2-element `SVector` with the derivatives ``[\nabla_\alpha, \nabla_\theta]``.
 Distribution ``q \sim \mathcal{N}(\mu, \sigma^2)``.
 
 !!! note
-    Any `GaussianDistributionsFamily` type is accepted for expectations, including `NormalMeanVariance`, `NormalMeanPrecision`, and `NormalWeightedMeanPrecision`. The gradients are defined under `Normal(μ, σ)`, and through the Jacobian under `NormalMeanVariance` and `ExponentialFamilyDistribution{NormalMeanVariance}`.
+    Any `UnivariateNormalDistributionsFamily` type is accepted for expectations, including `Normal`, `NormalMeanVariance`, `NormalMeanPrecision`, and `NormalWeightedMeanPrecision`. The gradients are defined under `Normal(μ, σ)`, and through the Jacobian under `NormalMeanVariance` and `ExponentialFamilyDistribution{NormalMeanVariance}`.
 
 ### Expectations
 
@@ -129,6 +129,7 @@ Distribution ``q \sim \mathcal{N}(\mu, \sigma^2)``.
 | `Base.Fix1(logpdf, Laplace(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Lap}}(x)]`` |
 | `Abs()` | ``\mathbb{E}_q[\lvert x \rvert]`` |
 | `Base.Fix1(logpdf, LogGamma(α, β))` | ``\mathbb{E}_q[\log p_{\mathrm{LG}}(x)]`` |
+| `LogGammaKernel(α, β)` | ``\mathbb{E}_q[\beta x - e^x / \alpha]``, for any real ``\beta`` |
 | `Base.Fix1(logpdf, ReLUBackwardMessage(m_y, v_y))` | ``\mathbb{E}_q[\log m_{f \to x}(x)]``, ``m_{f \to x}(x) \propto \mathcal{N}(\max(0,x);\,m_y,v_y)`` |
 
 ### Gradients
@@ -141,6 +142,7 @@ A 2-element `SVector` with the derivatives ``[\nabla_\mu, \nabla_\sigma]``.
 | `Base.Fix1(logpdf, Normal(...))` | ``\mathbb{E}_q[\log p_{\mathcal{N}}(x) \cdot \nabla_{(\mu,\sigma)} \log q(x)]`` |
 | `Base.Fix1(logpdf, Laplace(...))` | ``\mathbb{E}_q[\log p_{\mathrm{Lap}}(x) \cdot \nabla_{(\mu,\sigma)} \log q(x)]`` |
 | `Base.Fix1(logpdf, LogGamma(α, β))` | ``\mathbb{E}_q[\log p_{\mathrm{LG}}(x) \cdot \nabla_{(\mu,\sigma)} \log q(x)]`` |
+| `LogGammaKernel(α, β)` | ``\mathbb{E}_q[(\beta x - e^x / \alpha) \cdot \nabla_{(\mu,\sigma)} \log q(x)]`` |
 
 ## [LogNormal Distribution](@id lib-lognormal)
 

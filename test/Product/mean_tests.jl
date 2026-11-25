@@ -17,3 +17,10 @@
         @test BayesBase.expectation(ClosedFormExpectation(), log ∘ product, Exponential(λ)) ≈ sum_mean
     end
 end
+@testitem "log ∘ Product can be evaluated at a point" begin
+    import ClosedFormExpectations: Product, Square
+    f = Product((ExpLogSquare(0.1, 0.9), Square()))
+    x = 1.7
+    @test f(x) ≈ ExpLogSquare(0.1, 0.9)(x) * x^2
+    @test (log ∘ f)(x) ≈ log(f(x))
+end

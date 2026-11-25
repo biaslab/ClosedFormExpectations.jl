@@ -38,6 +38,7 @@ BayesBase.supports_expectation(ClosedFormExpectation(), Base.Fix1(logpdf, Beta(2
 
 The backend labels its results exact and is registered when the package is loaded, so inference
 packages that choose among the loaded backends, such as RxInfer, use the closed forms where they
-exist. Version 1.0 replaced `mean(ClosedFormExpectation(), f, q)` and
-`mean(ClosedWilliamsProduct(), f, q)` with these functions; the documentation has a table for
-migrating.
+exist. With Enzyme.jl loaded, `ClosedFormAD(AutoEnzyme())` differentiates a closed-form
+expectation where the package has no formula for its gradient. Version 1.0 replaced
+`mean(ClosedFormExpectation(), f, q)` and `mean(ClosedWilliamsProduct(), f, q)` with these
+functions; the documentation has a table for migrating.

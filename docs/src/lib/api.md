@@ -4,6 +4,7 @@
 
 ```@docs
 ClosedFormExpectation
+ClosedFormAD
 ```
 
 ## [Computing Expectations and Gradients](@id lib-computing-expectations)
@@ -58,8 +59,9 @@ parameters, and the package has formulas for:
 - `ExponentialFamilyDistribution{Categorical}`, the full softmax-logit score gradient, see
   [Categorical Distribution](@ref lib-categorical).
 
-For any other `ExponentialFamilyDistribution{T}` whose expectation has a closed form, load Enzyme.jl
-and use `ClosedFormExpectation(EnzymeBackend())`, see the [Enzyme extension](@ref ext-enzyme).
+For any other univariate `ExponentialFamilyDistribution{T}` whose expectation has a closed form,
+load Enzyme.jl and use `ClosedFormAD(AutoEnzyme())` after `ClosedFormExpectation()` in a router, see
+the [Enzyme extension](@ref ext-enzyme).
 
 ## [ProductOf Support](@id lib-productof)
 
@@ -76,12 +78,15 @@ wherever both parts have one. Nested products are split the same way.
 ## [Migrating from 0.4](@id lib-migrating)
 
 Version 1.0 computes everything through BayesBase's protocol. The `mean` methods, the
-`ClosedWilliamsProduct` strategy and the `Logpdf` wrapper are removed.
+`ClosedWilliamsProduct` strategy, the `EnzymeBackend`, `EnzymeForward` and `EnzymeReverse` types
+and the `Logpdf` wrapper are removed.
 
 | 0.4 | 1.0 |
 |:----|:----|
 | `mean(ClosedFormExpectation(), f, q)` | `BayesBase.expectation(ClosedFormExpectation(), f, q)` |
 | `mean(ClosedWilliamsProduct(), f, q)` | `BayesBase.expectation_gradient(ClosedFormExpectation(), f, q)` |
-| `mean(ClosedWilliamsProduct(EnzymeBackend()), f, q)` | `BayesBase.expectation_gradient(ClosedFormExpectation(EnzymeBackend()), f, q)` |
+| `mean(ClosedWilliamsProduct(EnzymeBackend()), f, q)` | `BayesBase.expectation_gradient(ClosedFormAD(AutoEnzyme()), f, q)`, with `AutoEnzyme` from ADTypes.jl |
+| `EnzymeBackend(EnzymeForward())` | `AutoEnzyme(mode = Enzyme.Forward)` |
+| `LogGamma(α, β; check_args = false)` with `β ≤ 0`, as a log-message | `LogGammaKernel(α, β)` |
 | `Logpdf(p)`, or the distribution `p` as the integrand | `Base.Fix1(logpdf, p)` |
 | a closed form under an `Exponential`, a number | a vector of length one, with respect to the scale |

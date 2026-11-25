@@ -14,7 +14,9 @@ The LogGamma distribution is a continuous distribution on the real line with pro
 \mathcal{LG}(x \mid \alpha, \beta) = \frac{e^{\beta x} \, e^{-e^x / \alpha}}{\alpha^\beta \, \Gamma(\beta)}, \quad -\infty < x < \infty, \; \alpha > 0, \; \beta > 0
 ```
 
-where ``\alpha`` is the scale parameter and ``\beta`` is the shape parameter.
+where ``\alpha`` is the scale parameter and ``\beta`` is the shape parameter. Both must be
+positive. For the unnormalised log-density with any ``\beta``, such as a Gamma message pulled back
+through `exp`, use [`LogGammaKernel`](@ref).
 
 **Reference:** [Log-Gamma distribution (William & Mary)](https://www.math.wm.edu/~leemis/chart/UDR/PDFs/Loggamma.pdf)
 
@@ -28,6 +30,23 @@ logpdf(d, 0.5)
 
 # Used as a target in expectations
 BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, LogGamma(2.0, 3.0)), Normal(0, 1))
+```
+
+## [LogGammaKernel](@id lib-loggammakernel)
+
+```@docs
+LogGammaKernel
+```
+
+### Usage
+
+```julia
+using ClosedFormExpectations, Distributions
+
+# The message of a Poisson count of zero towards its log-rate, exp(-eˣ)
+f = LogGammaKernel(1.0, 0.0)
+BayesBase.expectation(ClosedFormExpectation(), f, Normal(0, 1))
+BayesBase.expectation_gradient(ClosedFormExpectation(), f, Normal(0, 1))
 ```
 
 ## [ReLU Factor Messages](@id lib-relu-messages)

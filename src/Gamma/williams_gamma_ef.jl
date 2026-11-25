@@ -7,6 +7,6 @@ import ExponentialFamily: ExponentialFamilyDistribution, getnaturalparameters
 # α and scale θ. The Jacobian ∂(α, θ)/∂(η₁, η₂) is diagonal, with entries 1 and 1/η₂².
 function gamma_ef_gradient(backend, f, q::ExponentialFamilyDistribution{Gamma})
     η = getnaturalparameters(q)
-    jacobian_diagonal = @SVector [1.0, 1.0 / (η[2]^2)]
+    jacobian_diagonal = @SVector [one(η[2]), inv(η[2]^2)]
     return expectation_gradient(backend, f, convert(Distribution, q)) .* jacobian_diagonal
 end

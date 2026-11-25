@@ -31,24 +31,24 @@ end
     return 1/(2*σ^2)*(-(μ+eulergamma)^2 - π^2/6 - log(λ)*(-2*(eulergamma+μ) + log(λ)))
 end
 
-@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, ::typeof(log), q::Exponential)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, ::typeof(log), q::Exponential)
     return @SVector [1/mean(q)]
 end
 
-@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Exponential) where {T}
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Exponential) where {T}
     μ = f.inner.μ
     σ = f.inner.σ
     λ = mean(q)
     return @SVector [1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ)]
 end
 
-@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, f::LogpdfOf{LogNormal{T}}, q::Exponential) where {T}
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, f::LogpdfOf{LogNormal{T}}, q::Exponential) where {T}
     μ, σ = f.x.μ, f.x.σ
     λ = mean(q)
     return @SVector [1/(2*σ^2)*(-1/λ*(-2*(eulergamma+μ) + log(λ)) - log(λ)/λ) - 1/λ]
 end 
 
-@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation{Nothing}, f::LogpdfOf{Exponential{T}}, ::Exponential) where {T}
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, f::LogpdfOf{Exponential{T}}, ::Exponential) where {T}
     λ2 = mean(f.x)
     return @SVector [-1/λ2]
 end

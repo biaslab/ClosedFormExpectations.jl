@@ -1,9 +1,10 @@
 # [Enzyme Extension](@id ext-enzyme)
 
 The `ClosedFormExpectationsEnzymeExt` extension is loaded when
-[Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl) is loaded. It computes the gradient of an
-expectation by differentiating the closed-form expectation with Enzyme, so a new distribution
-family does not need a hand-written Jacobian.
+[Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl) is loaded. With it, the
+[`ClosedFormAD`](@ref) backend computes the gradient of an expectation by differentiating the
+closed-form expectation with Enzyme, so a gradient without a hand-written formula can still be
+computed exactly.
 
 ## Motivation
 
@@ -17,58 +18,49 @@ The gradient of an expectation with respect to the natural parameters ``\eta`` o
 The right-hand side is the gradient of an expectation the package already computes, so Enzyme can
 compute it without a hand-derived formula.
 
-## Backends
+## The backend
 
-The AD mode is the `gradient` field of [`ClosedFormExpectation`](@ref lib-core-types):
+`ClosedFormAD(ad)` takes an automatic differentiation backend of
+[ADTypes.jl](https://github.com/SciML/ADTypes.jl). With this extension, `AutoEnzyme` is supported:
 
-| Constructor | Mode | Notes |
-|:------------|:-----|:------|
-| `ClosedFormExpectation(EnzymeBackend())` | Reverse (default) | One backward pass; efficient when there are few outputs |
-| `ClosedFormExpectation(EnzymeBackend(EnzymeReverse()))` | Reverse (explicit) | Same as above |
-| `ClosedFormExpectation(EnzymeBackend(EnzymeForward()))` | Forward | One forward pass per parameter; good for low-dimensional ``\eta`` |
+| Constructor | Mode |
+|:------------|:-----|
+| `ClosedFormAD(AutoEnzyme())` | Reverse, the default |
+| `ClosedFormAD(AutoEnzyme(mode = Enzyme.Reverse))` | Reverse |
+| `ClosedFormAD(AutoEnzyme(mode = Enzyme.Forward))` | Forward, one pass per parameter |
 
-Expectations are computed by these backends as by `ClosedFormExpectation()`. Only gradients differ.
-
-```@docs
-EnzymeBackend
-EnzymeReverse
-EnzymeForward
-```
-
-## Usage
+The backend computes only gradients, and only where `ClosedFormExpectation()` has the
+expectation. It is meant to follow `ClosedFormExpectation()` in a router of BayesBase, so that the
+hand-written formulas are used where they exist and automatic differentiation for the rest:
 
 ```julia
 using ClosedFormExpectations, BayesBase, Distributions, ExponentialFamily, Enzyme
+import ADTypes: AutoEnzyme
 
-ef = convert(ExponentialFamilyDistribution, LogNormal(1.0, 0.5))
+backend = BayesBase.ExpectationFirstOf(ClosedFormExpectation(), ClosedFormAD(AutoEnzyme()))
+q = convert(ExponentialFamilyDistribution, LogNormal(1.0, 0.5))
 
-# Reverse mode (default)
-BayesBase.expectation_gradient(ClosedFormExpectation(EnzymeBackend()), Base.Fix1(logpdf, Gamma(2.0, 3.0)), ef)
+# No formula for this gradient: Enzyme differentiates the closed-form expectation
+BayesBase.expectation_gradient(backend, Base.Fix1(logpdf, Gamma(2.0, 3.0)), q)
 
-# Forward mode
-BayesBase.expectation_gradient(ClosedFormExpectation(EnzymeBackend(EnzymeForward())), Base.Fix1(logpdf, Gamma(2.0, 3.0)), ef)
+# A formula: the router uses it
+BayesBase.expectation_gradient(backend, log, convert(ExponentialFamilyDistribution, Gamma(2.0, 3.0)))
 ```
 
-`ClosedFormExpectation()` uses the formulas written in the package. See
-[The Backend](@ref lib-core-types).
-
-## When to use it
-
-Use `EnzymeBackend` when:
-
-- you have added a closed-form expectation for a new distribution family but no formula for its
-  gradient;
-- you want to check a new formula against automatic differentiation;
-- the distribution is an `ExponentialFamilyDistribution{T}`, whose natural parameters the
-  extension differentiates.
-
-!!! note
-    The hand-written formulas of `ClosedFormExpectation()` avoid the cost of automatic
-    differentiation, so use them where they exist.
+A numerical backend, such as a quadrature rule of ExpectationApproximations.jl, can follow in the
+same router for the pairs without a closed form.
 
 ## Supported scope
 
-The extension computes the gradient under any `ExponentialFamilyDistribution{T}` for which
+The extension computes the gradient under a univariate `ExponentialFamilyDistribution{T}`, with
+respect to its natural parameters, wherever
 `BayesBase.expectation(ClosedFormExpectation(), f, q)` has a closed form, including through the
-conversion of `q` to its standard Distributions.jl form. Under other distributions it supports
-nothing, and `BayesBase.supports_expectation_gradient` says so.
+conversion of `q` to its standard Distributions.jl form.
+`BayesBase.supports_expectation_gradient(ClosedFormAD(AutoEnzyme()), f, q)` is `false` everywhere
+else: under other distributions, and under multivariate exponential family forms, whose closed
+forms go through matrix factorisations that Enzyme does not differentiate.
+
+!!! note
+    The hand-written formulas of `ClosedFormExpectation()` avoid the cost of automatic
+    differentiation and are exact in any parametrization they are written in, so put
+    `ClosedFormExpectation()` first.

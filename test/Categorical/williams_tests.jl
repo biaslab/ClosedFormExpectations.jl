@@ -116,7 +116,6 @@ end
     using ClosedFormExpectations
     using Distributions
     using ExponentialFamily: ExponentialFamilyDistribution, ProductOf
-    using Enzyme
     using Test
 
     strategy = ClosedFormExpectation()

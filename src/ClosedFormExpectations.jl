@@ -1,6 +1,7 @@
 module ClosedFormExpectations
 
 import Base: log
+import ADTypes
 import BayesBase
 import BayesBase: @supports_expectation, @supports_expectation_gradient, expectation, expectation_gradient
 import Distributions: mean, logpdf
@@ -10,7 +11,6 @@ export ExpLogSquare
 
 """
     ClosedFormExpectation()
-    ClosedFormExpectation(gradient)
 
 A backend of BayesBase's expectation protocol that computes expectations and their gradients in
 closed form. `BayesBase.expectation(ClosedFormExpectation(), f, q)` computes ``\\mathbb{E}_q[f]``,
@@ -21,55 +21,39 @@ parameters of `q`, for the pairs listed in [Supported Pairs](@ref lib-supported-
 supported. The backend labels its results exact and is registered when the package is loaded. See
 [The Expectation Protocol of BayesBase](@ref lib-protocol).
 
-`gradient` selects how gradients are computed: `nothing`, the default, uses the formulas written
-in the package, and an [`EnzymeBackend`](@ref) differentiates the closed-form expectation with
-Enzyme.jl, see [Enzyme Extension](@ref ext-enzyme).
+The gradients are the formulas written in the package. For a gradient that has no formula, but
+whose expectation has a closed form, see [`ClosedFormAD`](@ref).
 """
-struct ClosedFormExpectation{G}
-    gradient::G
-end
-
-ClosedFormExpectation() = ClosedFormExpectation(nothing)
+struct ClosedFormExpectation end
 
 """
-    EnzymeForward
+    ClosedFormAD(ad)
 
-Selects Enzyme.jl forward-mode AD for `EnzymeBackend`.
-"""
-struct EnzymeForward end
-
-"""
-    EnzymeReverse
-
-Selects Enzyme.jl reverse-mode AD for `EnzymeBackend`. This is the default mode.
-"""
-struct EnzymeReverse end
-
-export EnzymeForward, EnzymeReverse
-
-"""
-    EnzymeBackend{Mode}
-
-Computes the gradient of an expectation for `ClosedFormExpectation(EnzymeBackend())` by
-differentiating the closed-form expectation with Enzyme.jl, using the identity
+A backend of BayesBase's expectation protocol that computes the gradient of an expectation by
+differentiating its closed form with automatic differentiation, using the identity
 
 ```math
 \\mathbb{E}_q[f(x)\\,\\nabla_\\eta \\log q(x;\\eta)] = \\nabla_\\eta \\mathbb{E}_q[f(x)]
 ```
 
-It requires Enzyme.jl to be loaded. It works for an `ExponentialFamilyDistribution{T}`, in its
-natural parameters `η`, wherever the expectation has a closed form under `T`.
+`ad` is an automatic differentiation backend from ADTypes.jl. `AutoEnzyme()` is supported once
+Enzyme.jl is loaded, see [Enzyme Extension](@ref ext-enzyme). The gradient is with respect to the
+natural parameters `η` of a univariate `ExponentialFamilyDistribution{T}`, wherever
+`ClosedFormExpectation()` has the expectation under `T`. The backend computes nothing else, so it
+is meant to follow `ClosedFormExpectation()` in a router, which then uses a formula where the
+package has one:
 
-The `Mode` type parameter selects the AD mode:
-- `EnzymeBackend()` or `EnzymeBackend(EnzymeReverse())`: reverse mode, the default.
-- `EnzymeBackend(EnzymeForward())`: forward mode.
+```julia
+BayesBase.ExpectationFirstOf(ClosedFormExpectation(), ClosedFormAD(AutoEnzyme()), quadrature)
+```
+
+Its results are labelled exact. It is not registered with BayesBase's dynamic router.
 """
-struct EnzymeBackend{Mode}
-    mode::Mode
+struct ClosedFormAD{A <: ADTypes.AbstractADType}
+    ad::A
 end
-EnzymeBackend() = EnzymeBackend(EnzymeReverse())
 
-export EnzymeBackend
+export ClosedFormAD
 
 # The integrand of the expected log-density `E_q[log p]`
 const LogpdfOf{D} = Base.Fix1{typeof(logpdf), D}
@@ -90,6 +74,7 @@ include("expressions/Abs.jl")
 
 # extra distributions
 include("expressions/distributions/LogGamma.jl")
+include("expressions/LogGammaKernel.jl")
 include("expressions/distributions/ReLUForwardMessage.jl")
 include("expressions/distributions/ReLUBackwardMessage.jl")
 

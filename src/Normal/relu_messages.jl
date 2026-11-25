@@ -1,7 +1,7 @@
 import Distributions: Normal, cdf, pdf, std, var, mean
-import ExponentialFamily: GaussianDistributionsFamily
+import ExponentialFamily: UnivariateNormalDistributionsFamily
 
-# Note: `Base.Fix1(logpdf, ReLUForwardMessage(…))` is NOT implemented for GaussianDistributionsFamily.
+# Note: `Base.Fix1(logpdf, ReLUForwardMessage(…))` is NOT implemented for UnivariateNormalDistributionsFamily.
 # ReLU output y ≥ 0 always, so logpdf(ReLUForwardMessage, y) = −∞ for y ≤ 0.
 # A Normal q assigns positive mass to y ≤ 0, making E_Normal[logpdf(ReLUFM, y)] = −∞.
 # Use Gamma or LogNormal (support on (0,∞)) for the forward-message expectation.
@@ -18,7 +18,7 @@ import ExponentialFamily: GaussianDistributionsFamily
 #     − [(μ-m_y)²+σ²] Φ / (2 v_y)
 #     − (μ-2m_y) σ φ / (2 v_y)
 # ---------------------------------------------------------------------------
-@supports_expectation function expectation(::ClosedFormExpectation, f::LogpdfOf{<:ReLUBackwardMessage}, q::GaussianDistributionsFamily)
+@supports_expectation function expectation(::ClosedFormExpectation, f::LogpdfOf{<:ReLUBackwardMessage}, q::UnivariateNormalDistributionsFamily)
     m_y, v_y = f.x.m_y, f.x.v_y
     μ, σ = mean(q), std(q)
     α  = μ / σ

@@ -24,7 +24,8 @@ function supports_expectation(backend::ClosedFormExpectation, ::Type{F}, ::Type{
     return false
 end
 
-# A product of distributions is computed from the points of its components
+# A product of distributions needs every integrand under each component, which the backend does
+# not claim. The method also settles the ambiguity with BayesBase's method for products
 supports_expectation(::ClosedFormExpectation, ::Type, ::Type{BayesBase.FactorizedJoint{T}}) where {T <: Tuple} = false
 
 function expectation(backend::ClosedFormExpectation, f::F, q) where {F}
@@ -74,7 +75,7 @@ supports_every_multiplier(backend, ::Type, ::Type) = false
 
 supports_derived_gradient(backend, ::Type, ::Type) = false
 function supports_derived_gradient(
-        backend::ClosedFormExpectation{Nothing}, ::Type{ExpectationScoreProduct{G, Q}}, ::Type{Q}
+        backend::ClosedFormExpectation, ::Type{ExpectationScoreProduct{G, Q}}, ::Type{Q}
     ) where {G, Q}
     # The gradient of a product of log-densities is the sum of the gradients of its parts
     if G <: LogpdfOf{<:ProductOf}
@@ -106,6 +107,7 @@ end
 ## Labels and registration
 
 has_expectation_label(::ClosedFormExpectation, ::ExpectationExact) = true
+has_expectation_label(::ClosedFormAD, ::ExpectationExact) = true
 
 function __init__()
     register_expectation_backend!(ClosedFormExpectation())

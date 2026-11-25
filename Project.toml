@@ -4,6 +4,7 @@ authors = ["Mykola Lukashchuk <nikola.lukashuk@gmail.com> and contributors"]
 version = "1.0.0"
 
 [deps]
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 BayesBase = "b4ee3484-f114-42fe-b91c-797d54a0c67e"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 ExponentialFamily = "62312e5e-252a-4322-ace9-a5f4bf9b357b"
@@ -19,6 +20,7 @@ Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 ClosedFormExpectationsEnzymeExt = "Enzyme"
 
 [compat]
+ADTypes = "1"
 Aqua = "0.8.4"
 BayesBase = "1.7"
 CpuId = "0.3.1"

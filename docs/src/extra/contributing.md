@@ -39,12 +39,15 @@ To add a new closed-form expectation:
    ```
 4. **Optionally add its gradient** with `@supports_expectation_gradient`:
    ```julia
-   @supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation{Nothing}, f::YourFunctionType, q::YourDistribution)
+   @supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation, f::YourFunctionType, q::YourDistribution)
        # an SVector of the derivatives with respect to the parameters of q
    end
    ```
    The test "Every closed form declares its support" fails for a method defined without the
    macros.
+   Add an integrand or a distribution of the new pair to the lists in
+   `test/interface/support_tests.jl`: every declared pair must be computed by at least one case
+   there, and every pair declared supported must give a finite result.
 5. **Add tests** in the corresponding test file under `test/`. Tests typically validate against Monte Carlo estimates using the Central Limit Theorem.
 6. **Update the documentation** in `docs/src/lib/supported-pairs.md`.
 
