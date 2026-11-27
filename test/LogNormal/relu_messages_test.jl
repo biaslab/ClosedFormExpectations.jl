@@ -1,4 +1,4 @@
-@testitem "mean(::ClosedFormExpectation, ::Logpdf{ReLUForwardMessage}, ::LogNormal)" begin
+@testitem "expectation(::ClosedFormExpectation, ::Fix1{logpdf, ReLUForwardMessage}, ::LogNormal)" begin
     using Distributions, StableRNGs, ClosedFormExpectations, BayesBase
 
     include("../test_utils.jl")
@@ -10,13 +10,13 @@
         σ_q = 0.1 + rand(rng) * 1.5
         central_limit_theorem_test(
             ClosedFormExpectation(),
-            Logpdf(ReLUForwardMessage(m_x, v_x)),
+            Base.Fix1(logpdf, ReLUForwardMessage(m_x, v_x)),
             LogNormal(μ_q, σ_q)
         )
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::Logpdf{ReLUBackwardMessage}, ::LogNormal)" begin
+@testitem "expectation(::ClosedFormExpectation, ::Fix1{logpdf, ReLUBackwardMessage}, ::LogNormal)" begin
     using Distributions, StableRNGs, ClosedFormExpectations, BayesBase
 
     include("../test_utils.jl")
@@ -28,7 +28,7 @@ end
         σ_q = 0.1 + rand(rng) * 1.5
         central_limit_theorem_test(
             ClosedFormExpectation(),
-            Logpdf(ReLUBackwardMessage(m_y, v_y)),
+            Base.Fix1(logpdf, ReLUBackwardMessage(m_y, v_y)),
             LogNormal(μ_q, σ_q)
         )
     end

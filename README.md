@@ -15,20 +15,30 @@ You can install `ClosedFormExpectations.jl` using the Julia package manager. Fro
 pkg> add ClosedFormExpectations
 ```
 
-The package exports the following:
-
-`ClosedFormExpectation`: A struct representing the closed-form expectation
-
-`ClosedWilliamsProduct`: A struct representing the closed-form expectation of the product of score function and a target function (the gradient of the `ClosedFormExpectation`)
-
-`Logpdf`: A struct to represent the logpdf function of a distribution
-
 ## Usage
 
+The package defines `ClosedFormExpectation()`, a backend of the expectation protocol of
+[BayesBase](https://github.com/ReactiveBayes/BayesBase.jl). `BayesBase.expectation` computes the
+expectation of `f` under `q`, and `BayesBase.expectation_gradient` its gradient with respect to the
+parameters of `q`. The expectation of a log-density, `E_q[log p]`, takes the integrand
+`Base.Fix1(logpdf, p)`.
+
 ```julia
-using ClosedFormExpectations
-using Distributions
-mean(ClosedFormExpectation(), log, Exponential(10))
-mean(ClosedFormExpectation(), Logpdf(LogNormal(1, 10)), Exponential(10))
-mean(ClosedFormExpectation(), Base.Fix1(logpdf, Exponential(1)), Exponential(10))
+using ClosedFormExpectations, BayesBase, Distributions
+
+BayesBase.expectation(ClosedFormExpectation(), log, Exponential(10))
+BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, LogNormal(1, 10)), Exponential(10))
+
+# The gradient with respect to the shape and the scale of the Gamma
+BayesBase.expectation_gradient(ClosedFormExpectation(), log, Gamma(2, 3))
+
+# Whether a pair has a closed form
+BayesBase.supports_expectation(ClosedFormExpectation(), Base.Fix1(logpdf, Beta(2, 2)), Normal(0, 1)) # false
 ```
+
+The backend labels its results exact and is registered when the package is loaded, so inference
+packages that choose among the loaded backends, such as RxInfer, use the closed forms where they
+exist. With Enzyme.jl loaded, `ClosedFormAD(AutoEnzyme())` differentiates a closed-form
+expectation where the package has no formula for its gradient. Version 1.0 replaced
+`mean(ClosedFormExpectation(), f, q)` and `mean(ClosedWilliamsProduct(), f, q)` with these
+functions; the documentation has a table for migrating.

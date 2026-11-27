@@ -1,84 +1,92 @@
 # [API Reference](@id lib-api)
 
-## [Core Types](@id lib-core-types)
-
-The package provides two main computation strategies, represented as singleton types.
+## [The Backend](@id lib-core-types)
 
 ```@docs
 ClosedFormExpectation
+ClosedFormAD
 ```
 
-```@docs
-ClosedWilliamsProduct
-```
+## [Computing Expectations and Gradients](@id lib-computing-expectations)
 
-```@docs
-mean(::ClosedFormExpectation, ::Nothing, ::Nothing)
-mean(::ClosedFormExpectation, ::Any, ::ClosedFormExpectations.Categorical)
-mean(::ClosedWilliamsProduct, ::Nothing, ::Nothing)
-```
-
-### [Computing Expectations](@id lib-computing-expectations)
-
-All expectations are computed via the `mean` function:
+The package computes through the expectation protocol of BayesBase:
 
 ```julia
-# Closed-form expectation: E_q[f(x)]
-mean(ClosedFormExpectation(), f, q)
+# The expectation E_q[f(x)]
+BayesBase.expectation(ClosedFormExpectation(), f, q)
 
-# Williams' product: E_q[f(x) ∇_θ log q(x; θ)]
-mean(ClosedWilliamsProduct(), f, q)
+# Its gradient with respect to the parameters θ of q, ∇_θ E_q[f(x)] = E_q[f(x) ∇_θ log q(x; θ)]
+BayesBase.expectation_gradient(ClosedFormExpectation(), f, q)
+
+# Whether a pair has a closed form
+BayesBase.supports_expectation(ClosedFormExpectation(), f, q)
+BayesBase.supports_expectation_gradient(ClosedFormExpectation(), f, q)
 ```
 
-**Arguments:**
-- The first argument selects the computation strategy (`ClosedFormExpectation` or `ClosedWilliamsProduct`).
-- `f` is the function whose expectation is computed. It can be:
-  - A built-in function like `log`
-  - A `Logpdf(dist)` wrapper
-  - A `Base.Fix1(logpdf, dist)` partial application
-  - A raw `Distribution` (automatically wrapped as `Logpdf`)
-  - A composed expression like `Square() ∘ log` or `log ∘ ExpLogSquare(μ, σ)`
-- `q` is the distribution to take the expectation with respect to.
+`f` is the integrand. It can be a function such as `log`, the log-density `Base.Fix1(logpdf, p)`
+of a distribution `p`, or an expression such as `Square() ∘ log` or `log ∘ ExpLogSquare(μ, σ)`.
+`q` is the distribution the expectation is taken under. A pair without a closed form throws a
+`BayesBase.UnsupportedExpectationError`.
 
-**Return values:**
-- `ClosedFormExpectation` returns a scalar (or vector for multivariate distributions).
-- `ClosedWilliamsProduct` returns a gradient vector with respect to the supported parametrization. For Categorical EF distributions, this is the full length-K vector in softmax logits.
+The expectation is a number. The gradient is a vector, in the parametrization of `q`: with respect
+to `params(q)` for a distribution of Distributions.jl, with respect to the mean and the variance
+for a `NormalMeanVariance`, and with respect to the natural parameters for an
+`ExponentialFamilyDistribution`. For the exponential family form of a `Categorical` it is the full
+vector of length K in the softmax logits.
 
-## [Logpdf Wrapper](@id lib-logpdf)
+```jldoctest
+julia> using ClosedFormExpectations, BayesBase, Distributions
 
-```@docs
-Logpdf
-```
+julia> BayesBase.expectation(ClosedFormExpectation(), log, Gamma(2.0, 1.0)) ≈ 1 - Base.MathConstants.eulergamma
+true
 
-The `Logpdf` wrapper allows computing expectations of log-probability density functions. Several convenience dispatches are provided:
+julia> BayesBase.expectation_gradient(ClosedFormExpectation(), log, Gamma(2.0, 1.0)) ≈ [π^2 / 6 - 1, 1.0]
+true
 
-```julia
-# These are all equivalent:
-mean(ClosedFormExpectation(), Logpdf(Normal(0, 1)), q)
-mean(ClosedFormExpectation(), Base.Fix1(logpdf, Normal(0, 1)), q)
-mean(ClosedFormExpectation(), Normal(0, 1), q)
+julia> BayesBase.supports_expectation(ClosedFormExpectation(), Base.Fix1(logpdf, Beta(2.0, 2.0)), Normal(0.0, 1.0))
+false
 ```
 
 ## [ExponentialFamily Support](@id lib-ef-support)
 
-The package integrates with [ExponentialFamily.jl](https://github.com/ReactiveBayes/ExponentialFamily.jl) to support `ExponentialFamilyDistribution` objects. For `ClosedFormExpectation`, the EF distribution `q` is converted to its standard `Distributions.jl` representation. For `ClosedWilliamsProduct`, the result is the score gradient with respect to the EF natural parameters.
+The package works with the `ExponentialFamilyDistribution` objects of
+[ExponentialFamily.jl](https://github.com/ReactiveBayes/ExponentialFamily.jl). For an expectation,
+`q` is converted to its standard Distributions.jl form. The gradient is with respect to the natural
+parameters, and the package has formulas for:
+- `NormalMeanVariance`, through the Jacobian from ``(\mu, \sigma)`` to ``(\mu, v)``;
+- `ExponentialFamilyDistribution{NormalMeanVariance}`, through the Jacobian to the natural parameters;
+- `ExponentialFamilyDistribution{Gamma}`, likewise;
+- `ExponentialFamilyDistribution{Categorical}`, the full softmax-logit score gradient, see
+  [Categorical Distribution](@ref lib-categorical).
 
-Supported ExponentialFamily parametrizations with hand-coded Williams products:
-- `NormalMeanVariance` (with Jacobian adjustment for Williams' product)
-- `ExponentialFamilyDistribution{NormalMeanVariance}` (with natural parameter Jacobian)
-- `ExponentialFamilyDistribution{Gamma}` (with natural parameter Jacobian)
-- `ExponentialFamilyDistribution{Categorical}` (full softmax-logit score gradient; see [Categorical Distribution](@ref lib-categorical))
-
-For any other `ExponentialFamilyDistribution{T}` family where a `ClosedFormExpectation` exists
-but no hand-coded `ClosedWilliamsProduct` is available, load Enzyme.jl and use the
-[Enzyme extension](@ref ext-enzyme) to compute the Williams' product automatically via AD.
+For any other univariate `ExponentialFamilyDistribution{T}` whose expectation has a closed form,
+load Enzyme.jl and use `ClosedFormAD(AutoEnzyme())` after `ClosedFormExpectation()` in a router, see
+the [Enzyme extension](@ref ext-enzyme).
 
 ## [ProductOf Support](@id lib-productof)
 
-The package supports `ProductOf` distributions from [ExponentialFamily.jl](https://github.com/ReactiveBayes/ExponentialFamily.jl). When computing the expectation of a `Logpdf{ProductOf}`, the product is decomposed additively:
+The log-density of a `ProductOf` distribution from ExponentialFamily.jl is the sum of the
+log-densities of its parts:
 
 ```math
 \mathbb{E}_q[\log p_1(x) p_2(x)] = \mathbb{E}_q[\log p_1(x)] + \mathbb{E}_q[\log p_2(x)]
 ```
 
-This works recursively for nested products and is supported for both `ClosedFormExpectation` and `ClosedWilliamsProduct`.
+So `Base.Fix1(logpdf, prod(GenericProd(), p₁, p₂))` has a closed form, and its gradient too,
+wherever both parts have one. Nested products are split the same way.
+
+## [Migrating from 0.4](@id lib-migrating)
+
+Version 1.0 computes everything through BayesBase's protocol. The `mean` methods, the
+`ClosedWilliamsProduct` strategy, the `EnzymeBackend`, `EnzymeForward` and `EnzymeReverse` types
+and the `Logpdf` wrapper are removed.
+
+| 0.4 | 1.0 |
+|:----|:----|
+| `mean(ClosedFormExpectation(), f, q)` | `BayesBase.expectation(ClosedFormExpectation(), f, q)` |
+| `mean(ClosedWilliamsProduct(), f, q)` | `BayesBase.expectation_gradient(ClosedFormExpectation(), f, q)` |
+| `mean(ClosedWilliamsProduct(EnzymeBackend()), f, q)` | `BayesBase.expectation_gradient(ClosedFormAD(AutoEnzyme()), f, q)`, with `AutoEnzyme` from ADTypes.jl |
+| `EnzymeBackend(EnzymeForward())` | `AutoEnzyme(mode = Enzyme.Forward)` |
+| `LogGamma(α, β; check_args = false)` with `β ≤ 0`, as a log-message | `LogGammaKernel(α, β)` |
+| `Logpdf(p)`, or the distribution `p` as the integrand | `Base.Fix1(logpdf, p)` |
+| a closed form under an `Exponential`, a number | a vector of length one, with respect to the scale |

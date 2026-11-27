@@ -9,6 +9,6 @@ struct Product{T} <: Expression
     multipliers::T
 end
 
-function mean(::ClosedFormExpectation, p::ComposedFunction{typeof(log), Product{T}}, q) where {T}
-    return sum(mean(ClosedFormExpectation(), log ∘ p_i, q) for p_i in p.inner.multipliers)
-end
+(p::Product)(x) = prod(multiplier -> multiplier(x), p.multipliers)
+
+Base.log(p::Product, x) = sum(multiplier -> log(multiplier, x), p.multipliers)

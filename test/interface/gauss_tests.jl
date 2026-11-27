@@ -1,4 +1,6 @@
-@testitem "mean(::ClosedFormExpectation, SMT, ::NormalMeanVariance)" begin
+@testitem "expectation(::ClosedFormExpectation, SMT, ::NormalMeanVariance)" begin
+    import BayesBase
+    using Distributions
     include("../test_utils.jl")
     using ClosedFormExpectations
     using StableRNGs
@@ -8,24 +10,26 @@
     nmv = NormalMeanVariance(0.0, 1.0)
     normal = Normal(0.0, 1.0)
     laplace = Laplace(0.0, 1.0)
-    @test mean(ClosedFormExpectation(), Logpdf(nmv), nmv) ≈ mean(ClosedFormExpectation(), Logpdf(normal), normal)
-    @test mean(ClosedFormExpectation(), Logpdf(laplace), nmv) ≈ mean(ClosedFormExpectation(), Logpdf(laplace), normal)
+    @test BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, nmv), nmv) ≈ BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, normal), normal)
+    @test BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, laplace), nmv) ≈ BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, laplace), normal)
 end
 
 @testitem "Support GaussianDistributionsFamily" begin
+    import BayesBase
+    using Distributions
     using ExponentialFamily
     using ClosedFormExpectations
     using StableRNGs
 
-    @testset "ClosedFormExpectation interface" begin
+    @testset "Expectations" begin
         nmv = NormalMeanVariance(0.0, 1.0)
         nmp = NormalMeanPrecision(0.0, 1.0)
     
-        @test mean(ClosedFormExpectation(), Logpdf(nmv), nmv) isa Number
-        @test mean(ClosedFormExpectation(), Logpdf(nmp), nmv) isa Number 
+        @test BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, nmv), nmv) isa Number
+        @test BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, nmp), nmv) isa Number 
     end
 
-    @testset "ClosedWilliamsProduct interface" begin
+    @testset "Gradients" begin
         using Distributions
         using ExponentialFamily
 
@@ -33,10 +37,10 @@ end
         nmp = NormalMeanPrecision(0.0, 1.0)
         ef = convert(ExponentialFamilyDistribution, nmv)
     
-        @test mean(ClosedWilliamsProduct(), Logpdf(nmv), Normal(0, 1)) isa AbstractArray
-        @test mean(ClosedWilliamsProduct(), Logpdf(nmp), Normal(0, 1)) isa AbstractArray
-        @test mean(ClosedWilliamsProduct(), Logpdf(nmv), Normal(0, 1)) ≈ mean(ClosedWilliamsProduct(), Logpdf(nmp), Normal(0, 1))
-        @test mean(ClosedWilliamsProduct(), Logpdf(nmv), nmv) ≈ mean(ClosedWilliamsProduct(), Logpdf(nmp), nmv)
-        @test mean(ClosedWilliamsProduct(), Logpdf(nmv), ef) isa AbstractArray
+        @test BayesBase.expectation_gradient(ClosedFormExpectation(), Base.Fix1(logpdf, nmv), Normal(0, 1)) isa AbstractArray
+        @test BayesBase.expectation_gradient(ClosedFormExpectation(), Base.Fix1(logpdf, nmp), Normal(0, 1)) isa AbstractArray
+        @test BayesBase.expectation_gradient(ClosedFormExpectation(), Base.Fix1(logpdf, nmv), Normal(0, 1)) ≈ BayesBase.expectation_gradient(ClosedFormExpectation(), Base.Fix1(logpdf, nmp), Normal(0, 1))
+        @test BayesBase.expectation_gradient(ClosedFormExpectation(), Base.Fix1(logpdf, nmv), nmv) ≈ BayesBase.expectation_gradient(ClosedFormExpectation(), Base.Fix1(logpdf, nmp), nmv)
+        @test BayesBase.expectation_gradient(ClosedFormExpectation(), Base.Fix1(logpdf, nmv), ef) isa AbstractArray
     end
 end

@@ -4,74 +4,74 @@ import Distributions: Gamma, shape, rate, scale
 import LogExpFunctions: xlogx
 import ExponentialFamily: NormalMeanPrecision, NormalMeanVariance, mean_precision, mean_var, UnivariateNormalDistributionsFamily, GammaDistributionsFamily
 
-function mean(::ClosedFormExpectation, ::typeof(log), q::Gamma)
+@supports_expectation function expectation(::ClosedFormExpectation, ::typeof(log), q::Gamma)
     return digamma(shape(q)) + log(scale(q))
 end
 
-function mean(::ClosedWilliamsProduct, ::typeof(log), q::Gamma)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, ::typeof(log), q::Gamma)
     return @SVector [
         polygamma(1, shape(q)),
         1/scale(q)
     ]
 end
 
-function mean(::ClosedFormExpectation, ::typeof(xlogx), q::Gamma)
+@supports_expectation function expectation(::ClosedFormExpectation, ::typeof(xlogx), q::Gamma)
     scaler = shape(q)/rate(q)
     return scaler * (digamma(shape(q)+1) - log(rate(q))) 
 end
 
-function mean(::ClosedFormExpectation, ::typeof(xlog2x), q::Gamma)
+@supports_expectation function expectation(::ClosedFormExpectation, ::typeof(xlog2x), q::Gamma)
     scaler = shape(q)/rate(q)
     return scaler * ((digamma(shape(q)+1) - log(rate(q)))^2 + trigamma(shape(q)+1))
 end
 
-function mean(::ClosedFormExpectation, ::ComposedFunction{Square, typeof(log)}, q::Gamma)
+@supports_expectation function expectation(::ClosedFormExpectation, ::ComposedFunction{Square, typeof(log)}, q::Gamma)
     return trigamma(shape(q)) + (digamma(shape(q)) - log(rate(q)))^2
 end
 
-function mean(::ClosedWilliamsProduct, ::ComposedFunction{Square, typeof(log)}, q::Gamma)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, ::ComposedFunction{Square, typeof(log)}, q::Gamma)
     return @SVector [
         polygamma(2, shape(q)) + 2 * (digamma(shape(q)) - log(rate(q)))*trigamma(shape(q)),
         2 * (digamma(shape(q)) - log(rate(q))) * rate(q)
     ]
 end
 
-function mean(strategy::ClosedFormExpectation, ::ComposedFunction{Power{Val{3}}, typeof(log)}, q::Gamma)
-    Elogx = mean(strategy, log, q)
-    Elog2x = mean(strategy, Square() ∘ log, q)
+@supports_expectation function expectation(backend::ClosedFormExpectation, ::ComposedFunction{Power{Val{3}}, typeof(log)}, q::Gamma)
+    Elogx = expectation(backend, log, q)
+    Elog2x = expectation(backend, Square() ∘ log, q)
     return polygamma(2, shape(q)) + 3*Elogx * Elog2x - 2*Elogx^3
 end
 
-function mean(strategy::ClosedFormExpectation, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Gamma) where {T}
+@supports_expectation function expectation(backend::ClosedFormExpectation, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Gamma) where {T}
     μ, σ = f.inner.μ, f.inner.σ
-    Elogx = mean(strategy, log, q)
-    Elog2x = mean(strategy, Square() ∘ log, q)
+    Elogx = expectation(backend, log, q)
+    Elog2x = expectation(backend, Square() ∘ log, q)
     return -1/(2*σ^2)*(μ^2 - 2*μ*Elogx + Elog2x)
 end
 
-function mean(strategy::ClosedWilliamsProduct, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Gamma) where {T}
+@supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation, f::ComposedFunction{typeof(log), ExpLogSquare{T}}, q::Gamma) where {T}
     μ, σ = f.inner.μ, f.inner.σ
-    Elogx = mean(strategy, log, q)
-    Elog2x = mean(strategy, Square() ∘ log, q)
+    Elogx = expectation_gradient(backend, log, q)
+    Elog2x = expectation_gradient(backend, Square() ∘ log, q)
     return (2*μ*Elogx - Elog2x)/(2*σ^2)
 end
 
-function mean(strategy::ClosedFormExpectation, f::Logpdf{LogNormal{T}}, q::Gamma) where {T}
-    μ, σ = f.dist.μ, f.dist.σ
-    E_logexplogsquare = mean(strategy, log ∘ ExpLogSquare(μ, σ), q)
-    E_logx = mean(strategy, log, q)
+@supports_expectation function expectation(backend::ClosedFormExpectation, f::LogpdfOf{LogNormal{T}}, q::Gamma) where {T}
+    μ, σ = f.x.μ, f.x.σ
+    E_logexplogsquare = expectation(backend, log ∘ ExpLogSquare(μ, σ), q)
+    E_logx = expectation(backend, log, q)
     return E_logexplogsquare - E_logx - log(σ) - 0.5*log(2pi)
 end
 
-function mean(strategy::ClosedWilliamsProduct, f::Logpdf{LogNormal{T}}, q::Gamma) where {T}
-    μ, σ = f.dist.μ, f.dist.σ
-    E_logexplogsquare = mean(strategy, log ∘ ExpLogSquare(μ, σ), q)
-    E_logx = mean(strategy, log, q)
+@supports_expectation_gradient function expectation_gradient(backend::ClosedFormExpectation, f::LogpdfOf{LogNormal{T}}, q::Gamma) where {T}
+    μ, σ = f.x.μ, f.x.σ
+    E_logexplogsquare = expectation_gradient(backend, log ∘ ExpLogSquare(μ, σ), q)
+    E_logx = expectation_gradient(backend, log, q)
     return E_logexplogsquare - E_logx
 end
 
-function mean(::ClosedWilliamsProduct, p::Logpdf{<:GammaDistributionsFamily}, q::Gamma)
-    α_p, θ_p = shape(p.dist), scale(p.dist)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, p::LogpdfOf{<:GammaDistributionsFamily}, q::Gamma)
+    α_p, θ_p = shape(p.x), scale(p.x)
     α_q, θ_q = shape(q), scale(q)
     # ∇_{α_q} E_q[log p]
     grad_shape = (α_p - 1) * polygamma(1, α_q) - θ_q / θ_p
@@ -80,15 +80,15 @@ function mean(::ClosedWilliamsProduct, p::Logpdf{<:GammaDistributionsFamily}, q:
     return @SVector [grad_shape, grad_scale]
 end
 
-function mean(::ClosedFormExpectation, p::Logpdf{<:GammaDistributionsFamily}, q::Gamma)
-    α_p, θ_p = shape(p.dist), scale(p.dist)
+@supports_expectation function expectation(::ClosedFormExpectation, p::LogpdfOf{<:GammaDistributionsFamily}, q::Gamma)
+    α_p, θ_p = shape(p.x), scale(p.x)
     α_q, θ_q = shape(q), scale(q)
     E_log_x = digamma(α_q) + log(θ_q)
     E_x = α_q * θ_q
     return -loggamma(α_p) - α_p * log(θ_p) + (α_p - 1) * E_log_x - E_x / θ_p
 end
 
-function mean(::ClosedFormExpectation, p::Logpdf{<:UnivariateNormalDistributionsFamily}, q::Gamma)
+@supports_expectation function expectation(::ClosedFormExpectation, p::LogpdfOf{<:UnivariateNormalDistributionsFamily}, q::Gamma)
     # E_q [log N(x | λ, v)]
     # We use mean_var to support any UnivariateNormalDistributionsFamily.
     # mean_var returns (μ, v) of the distribution.
@@ -96,7 +96,7 @@ function mean(::ClosedFormExpectation, p::Logpdf{<:UnivariateNormalDistributions
     # and the random variable `λ` (from q) corresponds to the mean of the Normal.
     # log N(x | λ, v) = -0.5 log(2πv) - (λ - x)^2 / 2v
     
-    x_val, v_val = mean_var(p.dist)
+    x_val, v_val = mean_var(p.x)
     α, θ = shape(q), scale(q)
     
     # E[λ]
@@ -110,8 +110,8 @@ function mean(::ClosedFormExpectation, p::Logpdf{<:UnivariateNormalDistributions
     return term1 + term2
 end
 
-function mean(::ClosedWilliamsProduct, p::Logpdf{<:UnivariateNormalDistributionsFamily}, q::Gamma)
-    x_val, v_val = mean_var(p.dist)
+@supports_expectation_gradient function expectation_gradient(::ClosedFormExpectation, p::LogpdfOf{<:UnivariateNormalDistributionsFamily}, q::Gamma)
+    x_val, v_val = mean_var(p.x)
     α, θ = shape(q), scale(q)
     
     # Gradients derived in feature request

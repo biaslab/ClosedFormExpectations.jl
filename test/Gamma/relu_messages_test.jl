@@ -1,4 +1,4 @@
-@testitem "mean(::ClosedFormExpectation, ::Logpdf{ReLUForwardMessage}, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, ::Fix1{logpdf, ReLUForwardMessage}, ::Gamma)" begin
     using Distributions, StableRNGs, ClosedFormExpectations, BayesBase
 
     include("gamma_utils.jl")
@@ -10,13 +10,13 @@
         θ   = 0.5 + rand(rng) * 4
         central_limit_theorem_test(
             ClosedFormExpectation(),
-            Logpdf(ReLUForwardMessage(m_x, v_x)),
+            Base.Fix1(logpdf, ReLUForwardMessage(m_x, v_x)),
             Gamma(α, θ)
         )
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::Logpdf{ReLUBackwardMessage}, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, ::Fix1{logpdf, ReLUBackwardMessage}, ::Gamma)" begin
     using Distributions, StableRNGs, ClosedFormExpectations, BayesBase
 
     include("gamma_utils.jl")
@@ -28,7 +28,7 @@ end
         θ   = 0.5 + rand(rng) * 4
         central_limit_theorem_test(
             ClosedFormExpectation(),
-            Logpdf(ReLUBackwardMessage(m_y, v_y)),
+            Base.Fix1(logpdf, ReLUBackwardMessage(m_y, v_y)),
             Gamma(α, θ)
         )
     end

@@ -1,83 +1,66 @@
 # [Enzyme Extension](@id ext-enzyme)
 
-The `ClosedFormExpectationsEnzymeExt` extension is automatically loaded when
-[Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl) is present in the environment.
-It provides an automatic differentiation backend for
-[`ClosedWilliamsProduct`](@ref lib-core-types)
-that eliminates the need to hand-code Jacobians for new distribution families.
+The `ClosedFormExpectationsEnzymeExt` extension is loaded when
+[Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl) is loaded. With it, the
+[`ClosedFormAD`](@ref) backend computes the gradient of an expectation by differentiating the
+closed-form expectation with Enzyme, so a gradient without a hand-written formula can still be
+computed exactly.
 
 ## Motivation
 
-The Williams' product satisfies the identity
+The gradient of an expectation with respect to the natural parameters ``\eta`` of ``q`` satisfies
 
 ```math
 \mathbb{E}_q\!\left[f(x)\,\nabla_\eta \log q(x;\eta)\right]
 = \nabla_\eta\,\mathbb{E}_q[f(x)]
 ```
 
-where ``\eta`` are the natural parameters of ``q``.  
-Because the right-hand side is just the gradient of the *already-implemented*
-[`ClosedFormExpectation`](@ref lib-core-types), Enzyme can compute it automatically —
-no manual Jacobian derivation required.
+The right-hand side is the gradient of an expectation the package already computes, so Enzyme can
+compute it without a hand-derived formula.
 
-## Backends
+## The backend
 
-Two AD modes are available, selected via the `backend` field of
-[`ClosedWilliamsProduct`](@ref lib-core-types):
+`ClosedFormAD(ad)` takes an automatic differentiation backend of
+[ADTypes.jl](https://github.com/SciML/ADTypes.jl). With this extension, `AutoEnzyme` is supported:
 
-| Constructor | Mode | Notes |
-|:------------|:-----|:------|
-| `ClosedWilliamsProduct(EnzymeBackend())` | Reverse (default) | One backward pass; efficient when there are few outputs |
-| `ClosedWilliamsProduct(EnzymeBackend(EnzymeReverse()))` | Reverse (explicit) | Same as above |
-| `ClosedWilliamsProduct(EnzymeBackend(EnzymeForward()))` | Forward | One forward pass per parameter; good for low-dimensional ``\eta`` |
+| Constructor | Mode |
+|:------------|:-----|
+| `ClosedFormAD(AutoEnzyme())` | Reverse, the default |
+| `ClosedFormAD(AutoEnzyme(mode = Enzyme.Reverse))` | Reverse |
+| `ClosedFormAD(AutoEnzyme(mode = Enzyme.Forward))` | Forward, one pass per parameter |
 
-```@docs
-EnzymeBackend
-EnzymeReverse
-EnzymeForward
-```
-
-## Usage
+The backend computes only gradients, and only where `ClosedFormExpectation()` has the
+expectation. It is meant to follow `ClosedFormExpectation()` in a router of BayesBase, so that the
+hand-written formulas are used where they exist and automatic differentiation for the rest:
 
 ```julia
-using ClosedFormExpectations, Distributions, ExponentialFamily, Enzyme
+using ClosedFormExpectations, BayesBase, Distributions, ExponentialFamily, Enzyme
+import ADTypes: AutoEnzyme
 
-# Any ExponentialFamilyDistribution{T} for which ClosedFormExpectation is defined
-# automatically gets a Williams' product via Enzyme — no extra code needed.
+backend = BayesBase.ExpectationFirstOf(ClosedFormExpectation(), ClosedFormAD(AutoEnzyme()))
+q = convert(ExponentialFamilyDistribution, LogNormal(1.0, 0.5))
 
-ef = convert(ExponentialFamilyDistribution, LogNormal(1.0, 0.5))
+# No formula for this gradient: Enzyme differentiates the closed-form expectation
+BayesBase.expectation_gradient(backend, Base.Fix1(logpdf, Gamma(2.0, 3.0)), q)
 
-# Reverse-mode (default)
-mean(ClosedWilliamsProduct(EnzymeBackend()), Logpdf(Gamma(2.0, 3.0)), ef)
-
-# Forward-mode
-mean(ClosedWilliamsProduct(EnzymeBackend(EnzymeForward())), Logpdf(Gamma(2.0, 3.0)), ef)
+# A formula: the router uses it
+BayesBase.expectation_gradient(backend, log, convert(ExponentialFamilyDistribution, Gamma(2.0, 3.0)))
 ```
 
-The default `ClosedWilliamsProduct()` (no backend) is unchanged and still routes to
-hand-coded implementations where available. See [Core Types](@ref lib-core-types).
-
-## When to use it
-
-Use `EnzymeBackend` when:
-
-- You have added a new distribution family with a `ClosedFormExpectation` but have **not**
-  yet written a hand-coded `ClosedWilliamsProduct`.
-- You want to **prototype** quickly and verify correctness before committing to a manual
-  derivation.
-- The distribution is wrapped as an `ExponentialFamilyDistribution{T}` — the extension
-  handles the natural-parameter Jacobian automatically.
-
-!!! note
-    Hand-coded implementations (registered via `mean_ef_impl` for `ClosedWilliamsProduct{Nothing}`)
-    are still preferred when available, as they avoid AD overhead. The Enzyme backend acts
-    as a generic fallback for any `ExponentialFamilyDistribution{T}` not yet covered.
+A numerical backend, such as a quadrature rule of ExpectationApproximations.jl, can follow in the
+same router for the pairs without a closed form.
 
 ## Supported scope
 
-The extension works for **any** `ExponentialFamilyDistribution{T}` where
-`mean(ClosedFormExpectation(), f, q)` is defined (including via automatic conversion
-from `ExponentialFamilyDistribution` to a standard `Distributions.jl` type).
+The extension computes the gradient under a univariate `ExponentialFamilyDistribution{T}`, with
+respect to its natural parameters, wherever
+`BayesBase.expectation(ClosedFormExpectation(), f, q)` has a closed form, including through the
+conversion of `q` to its standard Distributions.jl form.
+`BayesBase.supports_expectation_gradient(ClosedFormAD(AutoEnzyme()), f, q)` is `false` everywhere
+else: under other distributions, and under multivariate exponential family forms, whose closed
+forms go through matrix factorisations that Enzyme does not differentiate.
 
-This covers all distributions listed in the [Supported Pairs](@ref lib-supported-pairs)
-table when passed as `ExponentialFamilyDistribution` wrappers.
+!!! note
+    The hand-written formulas of `ClosedFormExpectation()` avoid the cost of automatic
+    differentiation and are exact in any parametrization they are written in, so put
+    `ClosedFormExpectation()` first.

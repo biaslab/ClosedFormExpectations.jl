@@ -1,4 +1,6 @@
-@testitem "mean(::ClosedFormExpectation, ::typeof{log}, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, ::typeof{log}, ::Gamma)" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -10,7 +12,9 @@
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::typeof{xlogx}, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, ::typeof{xlogx}, ::Gamma)" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -24,7 +28,9 @@ end
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::ComposedFunction{Type{Square}, typeof(log)}, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, ::ComposedFunction{Type{Square}, typeof(log)}, ::Gamma)" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -36,7 +42,9 @@ end
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::ComposedFunction{Power{3}, typeof(log)}, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, ::ComposedFunction{Power{3}, typeof(log)}, ::Gamma)" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -50,7 +58,9 @@ end
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, ::xlog2x, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, ::xlog2x, ::Gamma)" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -64,7 +74,9 @@ end
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, log ∘ ExpLogSquare, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, log ∘ ExpLogSquare, ::Gamma)" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -79,7 +91,9 @@ end
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, Logpdf{Lognormal}, ::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, Fix1{logpdf, Lognormal}, ::Gamma)" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -90,11 +104,13 @@ end
     for _ in 1:10
         μ, σ = rand(rng)*10, rand(rng)*10
         α, θ = rand(rng)*10, rand(rng)*10
-        central_limit_theorem_test(ClosedFormExpectation(), Logpdf(LogNormal(μ, σ)), Gamma(α, θ))
+        central_limit_theorem_test(ClosedFormExpectation(), Base.Fix1(logpdf, LogNormal(μ, σ)), Gamma(α, θ))
     end
 end
 
-@testitem "mean(::ClosedFormExpectation, p::Logpdf{<:UnivariateNormalDistributionsFamily}, q::Gamma)" begin
+@testitem "expectation(::ClosedFormExpectation, p::Fix1{logpdf, <:UnivariateNormalDistributionsFamily}, q::Gamma)" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -102,14 +118,14 @@ end
     using ExponentialFamily
     include("../test_utils.jl")
     rng = StableRNG(123)
-    @testset "Logpdf{Gamma} on Gamma" begin
+    @testset "Fix1{logpdf, Gamma} on Gamma" begin
         for _ in 1:10
             p_dist = Normal(10rand(rng), 10rand(rng))
             q = Gamma(10rand(rng), 10rand(rng))
-            central_limit_theorem_test(ClosedFormExpectation(), Logpdf(p_dist), q)
+            central_limit_theorem_test(ClosedFormExpectation(), Base.Fix1(logpdf, p_dist), q)
             for parametrization in (NormalMeanVariance, NormalMeanPrecision, NormalWeightedMeanPrecision)
                 p_params = convert(parametrization, p_dist)
-                central_limit_theorem_test(ClosedFormExpectation(), Logpdf(p_params), q)
+                central_limit_theorem_test(ClosedFormExpectation(), Base.Fix1(logpdf, p_params), q)
             end
         end 
     end
@@ -117,22 +133,26 @@ end
 
 
 @testitem "Gamma Cross Entropy" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
     using SpecialFunctions
     include("../test_utils.jl")
     rng = StableRNG(123)
-    @testset "Logpdf{Gamma} on Gamma" begin
+    @testset "Fix1{logpdf, Gamma} on Gamma" begin
         for _ in 1:10
             p_dist = Gamma(10rand(rng), 10rand(rng))
             q = Gamma(10rand(rng), 10rand(rng))
-            central_limit_theorem_test(ClosedFormExpectation(), Logpdf(p_dist), q)
+            central_limit_theorem_test(ClosedFormExpectation(), Base.Fix1(logpdf, p_dist), q)
         end 
     end
 end
 
 @testitem "Gamma Cross Entropy supports GammaDistributionsFamily" begin
+    import BayesBase
+    using Distributions
     using Distributions
     using ClosedFormExpectations
     using StableRNGs
@@ -144,8 +164,8 @@ end
         p_ef = convert(GammaShapeRate, p_dist)
         q = Gamma(10rand(rng), 10rand(rng))
 
-        expected = mean(ClosedFormExpectation(), Logpdf(p_dist), q)
-        actual = mean(ClosedFormExpectation(), Logpdf(p_ef), q)
+        expected = BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, p_dist), q)
+        actual = BayesBase.expectation(ClosedFormExpectation(), Base.Fix1(logpdf, p_ef), q)
         @test isapprox(actual, expected; rtol = 1e-10, atol = 1e-12)
     end
 end
